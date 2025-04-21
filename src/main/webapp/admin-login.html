@@ -16,7 +16,7 @@
             </div>
             <nav>
                 <ul>
-                    <li><a href="index.html">Home</a></li>
+                    <li><a href="/">Home</a></li>
                     <li><a href="login.html">Candidate Login</a></li>
                 </ul>
             </nav>
@@ -35,7 +35,7 @@
                         <label for="email">Email Address</label>
                         <div class="input-with-icon">
                             <i data-feather="mail"></i>
-                            <input type="email" id="email" name="email" placeholder="Enter your email" required>
+                            <input type="email" id="email" name="email" placeholder="Enter your email" value="admin@quickhire.com" required>
                         </div>
                     </div>
 
@@ -43,11 +43,11 @@
                         <label for="password">Password</label>
                         <div class="input-with-icon">
                             <i data-feather="lock"></i>
-                            <input type="password" id="password" name="password" placeholder="Enter your password" required>
+                            <input type="password" id="password" name="password" placeholder="Enter your password" value="admin123" required>
                         </div>
                     </div>
 
-                    <div class="alert-box" id="alertBox"></div>
+                    <div class="alert-box" id="alertBox" style="display: none;"></div>
 
                     <button type="submit" class="btn btn-primary btn-block">
                         <i data-feather="log-in"></i> Login
@@ -76,26 +76,38 @@
             document.getElementById('email').value = 'admin@quickhire.com';
             document.getElementById('password').value = 'admin123';
             
+            // Clear any error messages on page load
+            const alertBox = document.getElementById('alertBox');
+            alertBox.style.display = 'none';
+            
             // Handle form submission
             const loginForm = document.getElementById('loginForm');
-            const alertBox = document.getElementById('alertBox');
             
             loginForm.addEventListener('submit', function(event) {
                 event.preventDefault();
                 
                 // Get form values
-                const email = document.getElementById('email').value;
-                const password = document.getElementById('password').value;
+                const email = document.getElementById('email').value.trim();
+                const password = document.getElementById('password').value.trim();
                 
-                // Create form data for submission
-                const formData = new FormData();
+                // Basic validation
+                if (!email || !password) {
+                    showAlert('Please fill in all required fields', 'error');
+                    return;
+                }
+                
+                // Create URL-encoded form data for better compatibility
+                const formData = new URLSearchParams();
                 formData.append('email', email);
                 formData.append('password', password);
                 
                 // Submit login request
                 fetch('/api/recruiter/login', {
                     method: 'POST',
-                    body: formData
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: formData.toString()
                 })
                 .then(response => response.json())
                 .then(data => {

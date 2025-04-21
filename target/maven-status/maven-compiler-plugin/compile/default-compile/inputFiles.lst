@@ -10,4 +10,5 @@
 /home/runner/workspace/src/main/java/com/example/ViewResumeServlet.java
 /home/runner/workspace/src/main/java/com/example/ResumeUploadServlet.java
 /home/runner/workspace/src/main/java/com/example/CandidateLogoutServlet.java
+/home/runner/workspace/src/main/java/com/example/HealthCheckServlet.java
 /home/runner/workspace/src/main/java/com/example/RecruiterLoginServlet.java

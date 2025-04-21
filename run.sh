@@ -21,5 +21,5 @@ export CORS_ENABLED=true
 # Configure Jetty for better external access
 export JETTY_OPTS="-Dorg.eclipse.jetty.server.Request.maxFormKeys=1000 -Dorg.eclipse.jetty.server.Request.maxFormContentSize=10000000"
 
-# Direct Maven execution with enhanced configuration
+# Direct Maven execution with enhanced configuration - most reliable method
 mvn clean jetty:run -Djetty.http.port=$APP_PORT -Djetty.host=$APP_HOST $JETTY_OPTS

@@ -17,6 +17,7 @@
             <nav>
                 <ul>
                     <li><span id="welcomeMessage">Welcome, Recruiter!</span></li>
+                    <li><a href="/" class="btn">Back to Home</a></li>
                     <li><a href="#" id="logoutBtn" class="btn btn-secondary">Logout</a></li>
                 </ul>
             </nav>
@@ -278,16 +279,25 @@
             logoutBtn.addEventListener('click', function(event) {
                 event.preventDefault();
                 
+                // Get recruiterId for header auth
+                const recruiterId = localStorage.getItem('recruiterId');
+                
                 fetch('/api/recruiter/logout', {
-                    method: 'POST'
+                    method: 'POST',
+                    credentials: 'same-origin', // Include session cookies
+                    headers: {
+                        'X-User-Type': 'recruiter',
+                        'X-Recruiter-ID': recruiterId || ''
+                    }
                 })
-                .then(() => {
+                .then(response => {
+                    console.log('Logout response status:', response.status);
                     // Clear localStorage and redirect to home
                     localStorage.removeItem('recruiterId');
                     window.location.href = 'index.html';
                 })
                 .catch(error => {
-                    console.error('Error:', error);
+                    console.error('Error during logout:', error);
                     // Still redirect even if logout fails
                     localStorage.removeItem('recruiterId');
                     window.location.href = 'index.html';

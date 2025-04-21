@@ -1,4 +1,4 @@
-modules = ["java", "java-19"]
+modules = ["java", "java-19", "java-jdk"]
 
 [nix]
 channel = "stable-24_05"
@@ -28,7 +28,7 @@ task = "packager.installForAll"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "bash -c \"echo 'Running QuickHire with improved network configuration' && export JETTY_DEBUG=true && bash run.sh\""
+args = "bash run.sh"
 waitForPort = 5000
 
 [deployment]

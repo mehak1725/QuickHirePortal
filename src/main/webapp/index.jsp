@@ -1,4 +1,19 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%
+    // Set status code to 200 OK
+    response.setStatus(200);
+    
+    // Get the path to determine if we're on the root path
+    String path = request.getRequestURI();
+    
+    if (path.equals("/") || path.equals("/index.jsp")) {
+        // Redirect to index.html from the root path
+        response.setHeader("Location", "index.html");
+    } else {
+        // For all other paths that hit this JSP, send to index.html (like a SPA)
+        response.setHeader("Location", "/index.html");
+    }
+%>
 <!DOCTYPE html>
 <html>
 <head>
@@ -42,7 +57,7 @@
         // Backup redirection if meta refresh fails
         setTimeout(function() {
             window.location.href = 'index.html';
-        }, 2000);
+        }, 500);
     </script>
 </body>
 </html>

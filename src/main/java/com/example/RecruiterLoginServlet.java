@@ -24,17 +24,29 @@ public class RecruiterLoginServlet extends HttpServlet {
         // Set response type
         response.setContentType("application/json");
         
+        // Log content type for debugging
+        System.out.println("Content-Type: " + request.getContentType());
+        
         // Get login credentials
         String email = request.getParameter("email");
         String password = request.getParameter("password");
+        
+        // Log parameters for debugging
+        System.out.println("Email parameter: " + (email != null ? "Present" : "Null"));
+        System.out.println("Password parameter: " + (password != null ? "Present" : "Null"));
         
         // Validate input
         if (email == null || email.trim().isEmpty() || 
             password == null || password.trim().isEmpty()) {
             
+            System.out.println("Login failed: Missing required fields");
             sendError(response, "Missing required fields");
             return;
         }
+        
+        // Trim values for better validation
+        email = email.trim();
+        password = password.trim();
         
         // Validate recruiter credentials
         String recruiterId = DatabaseUtil.validateRecruiterLogin(email, password);
@@ -45,24 +57,34 @@ public class RecruiterLoginServlet extends HttpServlet {
             session.setAttribute("recruiterId", recruiterId);
             session.setAttribute("userType", "recruiter");
             
+            // Log success
+            System.out.println("Login successful for email: " + email);
+            
             // Send success response
             JSONObject jsonResponse = new JSONObject();
             jsonResponse.put("success", true);
             jsonResponse.put("message", "Login successful");
             jsonResponse.put("recruiterId", recruiterId);
             
+            response.setStatus(HttpServletResponse.SC_OK);
             response.getWriter().write(jsonResponse.toString());
         } else {
-            sendError(response, "Invalid email or password");
+            // Log failure
+            System.out.println("Login failed: Invalid credentials for email: " + email);
+            sendError(response, "Invalid email or password", HttpServletResponse.SC_UNAUTHORIZED);
         }
     }
     
     private void sendError(HttpServletResponse response, String message) throws IOException {
+        sendError(response, message, HttpServletResponse.SC_BAD_REQUEST);
+    }
+    
+    private void sendError(HttpServletResponse response, String message, int statusCode) throws IOException {
         JSONObject jsonResponse = new JSONObject();
         jsonResponse.put("success", false);
         jsonResponse.put("message", message);
         
-        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        response.setStatus(statusCode);
         response.getWriter().write(jsonResponse.toString());
     }
 }

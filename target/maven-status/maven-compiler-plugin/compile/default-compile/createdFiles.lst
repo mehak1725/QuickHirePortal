@@ -4,6 +4,7 @@ com/example/ResumeParserUtil.class
 com/example/CorsFilter.class
 com/example/ParsedResume.class
 com/example/ResumeUploadServlet.class
+com/example/HealthCheckServlet.class
 com/example/RecruiterLogoutServlet.class
 com/example/RecruiterLoginServlet.class
 com/example/CandidateLoginServlet.class
