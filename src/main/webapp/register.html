@@ -101,21 +101,51 @@
                 const confirmPassword = document.getElementById('confirmPassword').value;
                 
                 // Basic validation
+                if (!name.trim()) {
+                    showAlert('Please enter your name', 'error');
+                    return;
+                }
+                
+                if (!email.trim()) {
+                    showAlert('Please enter your email address', 'error');
+                    return;
+                }
+                
+                // Email validation regex
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(email)) {
+                    showAlert('Please enter a valid email address', 'error');
+                    return;
+                }
+                
+                if (!password.trim()) {
+                    showAlert('Please enter a password', 'error');
+                    return;
+                }
+                
                 if (password !== confirmPassword) {
                     showAlert('Passwords do not match!', 'error');
                     return;
                 }
                 
-                // Create form data for submission
-                const formData = new FormData();
-                formData.append('name', name);
-                formData.append('email', email);
-                formData.append('password', password);
+                if (password.length < 6) {
+                    showAlert('Password must be at least 6 characters long', 'error');
+                    return;
+                }
+                
+                // Create URL-encoded parameters
+                const urlEncodedData = new URLSearchParams();
+                urlEncodedData.append('name', name);
+                urlEncodedData.append('email', email);
+                urlEncodedData.append('password', password);
                 
                 // Submit registration request
                 fetch('/api/candidate/register', {
                     method: 'POST',
-                    body: formData
+                    body: urlEncodedData,
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    }
                 })
                 .then(response => response.json())
                 .then(data => {
@@ -140,6 +170,9 @@
                 alertBox.className = 'alert-box ' + type;
                 alertBox.textContent = message;
                 alertBox.style.display = 'block';
+                
+                // Scroll to the alert box
+                alertBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 
                 // Hide alert after 5 seconds for success messages
                 if (type === 'success') {
