@@ -371,6 +371,27 @@
                     return false;
                 }
                 
+                // Verify with a server-side check too
+                fetch('/api/resume/view', {
+                    credentials: 'same-origin',
+                    headers: {
+                        'X-Candidate-ID': candidateId,
+                        'X-User-Type': 'candidate'
+                    }
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        console.log('Server authentication check failed, redirecting to login');
+                        clearAuthData();
+                        window.location.href = 'login.html';
+                        return false;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error during server authentication check:', error);
+                    // Continue anyway as we already have local auth data
+                });
+                
                 // If we have a valid candidateId and name, initialize the UI
                 console.log('User authenticated, initializing dashboard UI');
                 initializeUI();

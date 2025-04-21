@@ -79,11 +79,15 @@
                 <configuration>
                     <webApp>
                         <contextPath>/</contextPath>
+                        <allowDuplicateFragmentNames>true</allowDuplicateFragmentNames>
                     </webApp>
                     <httpConnector>
                         <host>0.0.0.0</host>
                         <port>5000</port>
+                        <idleTimeout>60000</idleTimeout>
                     </httpConnector>
+                    <stopPort>9966</stopPort>
+                    <stopKey>quickhire-stop-key</stopKey>
                 </configuration>
             </plugin>
             <plugin>

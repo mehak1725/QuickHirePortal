@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>QuickHire Server Health Check</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 100px;
+            background-color: #f5f5f5;
+        }
+        .status {
+            padding: 20px;
+            border-radius: 5px;
+            display: inline-block;
+            margin: 20px;
+        }
+        .online {
+            background-color: #dff0d8;
+            color: #3c763d;
+            border: 1px solid #d6e9c6;
+        }
+        h1 {
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <h1>QuickHire Server Status</h1>
+    <div class="status online">
+        <h2>Server is online</h2>
+        <p>The QuickHire application server is running correctly.</p>
+        <p>Current time: <span id="serverTime"></span></p>
+    </div>
+    <p><a href="index.html">Go to main application</a></p>
+    
+    <script>
+        // Display current time
+        document.getElementById('serverTime').textContent = new Date().toLocaleString();
+    </script>
+</body>
+</html>

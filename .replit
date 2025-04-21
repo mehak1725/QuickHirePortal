@@ -28,7 +28,7 @@ task = "packager.installForAll"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "bash run.sh"
+args = "bash -c \"echo 'Running QuickHire with improved network configuration' && export JETTY_DEBUG=true && bash run.sh\""
 waitForPort = 5000
 
 [deployment]
