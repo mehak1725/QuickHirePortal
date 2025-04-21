@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Candidate Dashboard - QuickHire</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <i data-feather="briefcase"></i>
+                <h1>QuickHire</h1>
+            </div>
+            <nav>
+                <ul>
+                    <li><span id="welcomeMessage">Welcome!</span></li>
+                    <li><a href="#" id="logoutBtn" class="btn btn-secondary">Logout</a></li>
+                </ul>
+            </nav>
+        </header>
+
+        <main class="dashboard-page">
+            <div class="dashboard-sidebar">
+                <div class="sidebar-user">
+                    <div class="user-avatar">
+                        <i data-feather="user"></i>
+                    </div>
+                    <h3 id="candidateName">Candidate</h3>
+                    <p>Candidate Dashboard</p>
+                </div>
+                <div class="sidebar-menu">
+                    <ul>
+                        <li class="active">
+                            <a href="#" id="dashboardTab">
+                                <i data-feather="home"></i>
+                                <span>Dashboard</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" id="resumeTab">
+                                <i data-feather="file-text"></i>
+                                <span>View My Resume</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="dashboard-content">
+                <!-- Dashboard Tab -->
+                <div id="dashboardContent" class="tab-content active">
+                    <div class="content-header">
+                        <h2><i data-feather="home"></i> Dashboard</h2>
+                    </div>
+
+                    <div class="dashboard-cards">
+                        <div class="card resume-status-card">
+                            <div class="card-icon">
+                                <i data-feather="file-text"></i>
+                            </div>
+                            <div class="card-body">
+                                <h3>Resume Status</h3>
+                                <p id="resumeStatus">No resume uploaded yet</p>
+                            </div>
+                        </div>
+
+                        <div class="card application-status-card">
+                            <div class="card-icon">
+                                <i data-feather="check-circle"></i>
+                            </div>
+                            <div class="card-body">
+                                <h3>Application Status</h3>
+                                <p id="applicationStatus">Not reviewed yet</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="upload-section" id="uploadSection">
+                        <h3>Upload Your Resume</h3>
+                        <p>Upload your resume in PDF or DOCX format. Our system will parse it and extract relevant information.</p>
+                        
+                        <form id="resumeUploadForm" class="upload-form">
+                            <div class="file-upload">
+                                <div class="file-select">
+                                    <div class="file-select-button">
+                                        <i data-feather="upload-cloud"></i> Choose File
+                                    </div>
+                                    <div class="file-select-name" id="fileSelectName">No file chosen...</div>
+                                    <input type="file" name="resume" id="resumeFile" accept=".pdf,.docx">
+                                </div>
+                            </div>
+                            
+                            <div class="form-footer">
+                                <button type="submit" class="btn btn-primary">
+                                    <i data-feather="upload"></i> Upload Resume
+                                </button>
+                            </div>
+                        </form>
+                        
+                        <div id="uploadProgress" class="progress-bar-container" style="display: none;">
+                            <div class="progress-bar"></div>
+                        </div>
+                        
+                        <div id="uploadResult" class="upload-result" style="display: none;">
+                            <h3>Resume Parsed Successfully!</h3>
+                            <p>Your resume has been uploaded and parsed. Click on "View My Resume" to see the extracted information.</p>
+                        </div>
+                        
+                        <div class="alert-box" id="uploadAlert"></div>
+                    </div>
+                </div>
+
+                <!-- Resume View Tab -->
+                <div id="resumeContent" class="tab-content">
+                    <div class="content-header">
+                        <h2><i data-feather="file-text"></i> My Resume</h2>
+                    </div>
+
+                    <div class="resume-viewer" id="resumeViewer">
+                        <div class="resume-loading" id="resumeLoading">
+                            <i data-feather="loader"></i>
+                            <p>Loading your resume data...</p>
+                        </div>
+                        
+                        <div class="resume-data" id="resumeData" style="display: none;">
+                            <div class="resume-section personal-info">
+                                <h3>Personal Information</h3>
+                                <div class="info-item">
+                                    <span class="label">Name:</span>
+                                    <span class="value" id="resumeName">-</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="label">Email:</span>
+                                    <span class="value" id="resumeEmail">-</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="label">Phone:</span>
+                                    <span class="value" id="resumePhone">-</span>
+                                </div>
+                            </div>
+                            
+                            <div class="resume-section education">
+                                <h3>Education</h3>
+                                <ul id="resumeEducation" class="list-items"></ul>
+                            </div>
+                            
+                            <div class="resume-section experience">
+                                <h3>Work Experience</h3>
+                                <ul id="resumeExperience" class="list-items"></ul>
+                            </div>
+                            
+                            <div class="resume-section skills">
+                                <h3>Skills</h3>
+                                <div id="resumeSkills" class="skills-list"></div>
+                            </div>
+                            
+                            <div class="resume-section status">
+                                <h3>Application Status</h3>
+                                <div class="status-indicator" id="resumeApplicationStatus">Pending</div>
+                            </div>
+                        </div>
+                        
+                        <div class="resume-not-found" id="resumeNotFound" style="display: none;">
+                            <i data-feather="alert-circle"></i>
+                            <h3>No Resume Found</h3>
+                            <p>You haven't uploaded a resume yet. Please go to the dashboard and upload your resume.</p>
+                            <button class="btn btn-primary" id="goToDashboardBtn">
+                                <i data-feather="arrow-left"></i> Go to Dashboard
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer>
+            <div class="footer-bottom">
+                <p>&copy; 2023 QuickHire. All rights reserved.</p>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            feather.replace();
+            
+            // Check authentication
+            checkAuthentication();
+            
+            // Tab navigation
+            const dashboardTab = document.getElementById('dashboardTab');
+            const resumeTab = document.getElementById('resumeTab');
+            const dashboardContent = document.getElementById('dashboardContent');
+            const resumeContent = document.getElementById('resumeContent');
+            const goToDashboardBtn = document.getElementById('goToDashboardBtn');
+            
+            dashboardTab.addEventListener('click', function() {
+                setActiveTab(dashboardTab, dashboardContent);
+            });
+            
+            resumeTab.addEventListener('click', function() {
+                setActiveTab(resumeTab, resumeContent);
+                loadResumeData();
+            });
+            
+            goToDashboardBtn.addEventListener('click', function() {
+                setActiveTab(dashboardTab, dashboardContent);
+            });
+            
+            // Resume file upload
+            const resumeFile = document.getElementById('resumeFile');
+            const fileSelectName = document.getElementById('fileSelectName');
+            const resumeUploadForm = document.getElementById('resumeUploadForm');
+            const uploadAlert = document.getElementById('uploadAlert');
+            const uploadProgress = document.getElementById('uploadProgress');
+            const uploadResult = document.getElementById('uploadResult');
+            
+            resumeFile.addEventListener('change', function() {
+                if (this.files && this.files[0]) {
+                    const fileName = this.files[0].name;
+                    fileSelectName.textContent = fileName;
+                } else {
+                    fileSelectName.textContent = 'No file chosen...';
+                }
+            });
+            
+            resumeUploadForm.addEventListener('submit', function(event) {
+                event.preventDefault();
+                
+                if (!resumeFile.files || resumeFile.files.length === 0) {
+                    showUploadAlert('Please select a file to upload!', 'error');
+                    return;
+                }
+                
+                const file = resumeFile.files[0];
+                const fileExt = file.name.split('.').pop().toLowerCase();
+                
+                if (fileExt !== 'pdf' && fileExt !== 'docx') {
+                    showUploadAlert('Only PDF and DOCX files are supported!', 'error');
+                    return;
+                }
+                
+                // Create form data with file
+                const formData = new FormData();
+                formData.append('resume', file);
+                
+                // Show progress
+                uploadProgress.style.display = 'block';
+                uploadResult.style.display = 'none';
+                
+                // Upload file
+                fetch('/api/resume/upload', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // Hide progress
+                    uploadProgress.style.display = 'none';
+                    
+                    if (data.success) {
+                        // Show success and update UI
+                        uploadResult.style.display = 'block';
+                        document.getElementById('resumeStatus').textContent = 'Resume uploaded and parsed';
+                        
+                        // Update localStorage
+                        localStorage.setItem('hasResume', 'true');
+                        
+                        // Clear file input
+                        resumeFile.value = '';
+                        fileSelectName.textContent = 'No file chosen...';
+                    } else {
+                        showUploadAlert(data.message || 'Upload failed. Please try again.', 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    uploadProgress.style.display = 'none';
+                    showUploadAlert('An error occurred. Please try again later.', 'error');
+                });
+            });
+            
+            // Logout button
+            const logoutBtn = document.getElementById('logoutBtn');
+            logoutBtn.addEventListener('click', function(event) {
+                event.preventDefault();
+                
+                fetch('/api/candidate/logout', {
+                    method: 'POST'
+                })
+                .then(() => {
+                    // Clear localStorage and redirect to home
+                    localStorage.removeItem('candidateName');
+                    localStorage.removeItem('candidateId');
+                    localStorage.removeItem('hasResume');
+                    window.location.href = 'index.html';
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    // Still redirect even if logout fails
+                    localStorage.removeItem('candidateName');
+                    localStorage.removeItem('candidateId');
+                    localStorage.removeItem('hasResume');
+                    window.location.href = 'index.html';
+                });
+            });
+            
+            // Initialize UI based on localStorage
+            initializeUI();
+        });
+        
+        function checkAuthentication() {
+            fetch('/api/resume/view')
+                .then(response => {
+                    if (!response.ok) {
+                        // Not authenticated, redirect to login
+                        window.location.href = 'login.html';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    window.location.href = 'login.html';
+                });
+        }
+        
+        function initializeUI() {
+            const candidateName = localStorage.getItem('candidateName');
+            const hasResume = localStorage.getItem('hasResume') === 'true';
+            
+            // Set welcome message
+            document.getElementById('welcomeMessage').textContent = 'Welcome, ' + (candidateName || 'Candidate');
+            document.getElementById('candidateName').textContent = candidateName || 'Candidate';
+            
+            // Update resume status
+            if (hasResume) {
+                document.getElementById('resumeStatus').textContent = 'Resume uploaded and parsed';
+            } else {
+                document.getElementById('resumeStatus').textContent = 'No resume uploaded yet';
+            }
+        }
+        
+        function setActiveTab(tabElement, contentElement) {
+            // Remove active class from all tabs and contents
+            document.querySelectorAll('.sidebar-menu li').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // Add active class to selected tab and content
+            tabElement.parentElement.classList.add('active');
+            contentElement.classList.add('active');
+        }
+        
+        function loadResumeData() {
+            const resumeLoading = document.getElementById('resumeLoading');
+            const resumeData = document.getElementById('resumeData');
+            const resumeNotFound = document.getElementById('resumeNotFound');
+            
+            resumeLoading.style.display = 'flex';
+            resumeData.style.display = 'none';
+            resumeNotFound.style.display = 'none';
+            
+            fetch('/api/resume/view')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to fetch resume data');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    resumeLoading.style.display = 'none';
+                    
+                    if (data.success && data.resume) {
+                        // Show resume data
+                        displayResumeData(data.resume);
+                        resumeData.style.display = 'block';
+                        
+                        // Update application status
+                        const status = data.resume.status || 'pending';
+                        document.getElementById('applicationStatus').textContent = capitalizeFirstLetter(status);
+                    } else {
+                        // Show not found message
+                        resumeNotFound.style.display = 'block';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    resumeLoading.style.display = 'none';
+                    resumeNotFound.style.display = 'block';
+                });
+        }
+        
+        function displayResumeData(resume) {
+            // Personal info
+            document.getElementById('resumeName').textContent = resume.fullName || '-';
+            document.getElementById('resumeEmail').textContent = resume.email || '-';
+            document.getElementById('resumePhone').textContent = resume.phoneNumber || '-';
+            
+            // Education
+            const educationList = document.getElementById('resumeEducation');
+            educationList.innerHTML = '';
+            
+            if (resume.education && resume.education.length > 0) {
+                resume.education.forEach(edu => {
+                    const li = document.createElement('li');
+                    li.textContent = edu;
+                    educationList.appendChild(li);
+                });
+            } else {
+                const li = document.createElement('li');
+                li.textContent = 'No education information found';
+                educationList.appendChild(li);
+            }
+            
+            // Work Experience
+            const experienceList = document.getElementById('resumeExperience');
+            experienceList.innerHTML = '';
+            
+            if (resume.workExperience && resume.workExperience.length > 0) {
+                resume.workExperience.forEach(exp => {
+                    const li = document.createElement('li');
+                    li.textContent = exp;
+                    experienceList.appendChild(li);
+                });
+            } else {
+                const li = document.createElement('li');
+                li.textContent = 'No work experience information found';
+                experienceList.appendChild(li);
+            }
+            
+            // Skills
+            const skillsList = document.getElementById('resumeSkills');
+            skillsList.innerHTML = '';
+            
+            if (resume.skills && resume.skills.length > 0) {
+                resume.skills.forEach(skill => {
+                    const span = document.createElement('span');
+                    span.className = 'skill-tag';
+                    span.textContent = skill;
+                    skillsList.appendChild(span);
+                });
+            } else {
+                skillsList.textContent = 'No skills information found';
+            }
+            
+            // Application Status
+            const statusElem = document.getElementById('resumeApplicationStatus');
+            statusElem.textContent = capitalizeFirstLetter(resume.status || 'pending');
+            statusElem.className = 'status-indicator ' + (resume.status || 'pending');
+        }
+        
+        function showUploadAlert(message, type) {
+            const alertBox = document.getElementById('uploadAlert');
+            alertBox.className = 'alert-box ' + type;
+            alertBox.textContent = message;
+            alertBox.style.display = 'block';
+            
+            // Hide alert after 5 seconds for success messages
+            if (type === 'success') {
+                setTimeout(function() {
+                    alertBox.style.display = 'none';
+                }, 5000);
+            }
+        }
+        
+        function capitalizeFirstLetter(string) {
+            return string.charAt(0).toUpperCase() + string.slice(1);
+        }
+    </script>
+</body>
+</html>

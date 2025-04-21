@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recruiter Login - QuickHire</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <i data-feather="briefcase"></i>
+                <h1>QuickHire</h1>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="login.html">Candidate Login</a></li>
+                </ul>
+            </nav>
+        </header>
+
+        <main class="auth-page">
+            <div class="auth-card">
+                <div class="auth-header">
+                    <i data-feather="users"></i>
+                    <h2>Recruiter Login</h2>
+                    <p>Access your recruitment dashboard</p>
+                </div>
+
+                <form id="loginForm" class="auth-form">
+                    <div class="form-group">
+                        <label for="email">Email Address</label>
+                        <div class="input-with-icon">
+                            <i data-feather="mail"></i>
+                            <input type="email" id="email" name="email" placeholder="Enter your email" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <div class="input-with-icon">
+                            <i data-feather="lock"></i>
+                            <input type="password" id="password" name="password" placeholder="Enter your password" required>
+                        </div>
+                    </div>
+
+                    <div class="alert-box" id="alertBox"></div>
+
+                    <button type="submit" class="btn btn-primary btn-block">
+                        <i data-feather="log-in"></i> Login
+                    </button>
+                </form>
+
+                <div class="auth-footer">
+                    <p><strong>Note:</strong> Default login is admin@quickhire.com / admin123</p>
+                    <p>Looking for a job? <a href="login.html">Candidate Login</a></p>
+                </div>
+            </div>
+        </main>
+
+        <footer>
+            <div class="footer-bottom">
+                <p>&copy; 2023 QuickHire. All rights reserved.</p>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            feather.replace();
+            
+            // Fill in default admin credentials
+            document.getElementById('email').value = 'admin@quickhire.com';
+            document.getElementById('password').value = 'admin123';
+            
+            // Handle form submission
+            const loginForm = document.getElementById('loginForm');
+            const alertBox = document.getElementById('alertBox');
+            
+            loginForm.addEventListener('submit', function(event) {
+                event.preventDefault();
+                
+                // Get form values
+                const email = document.getElementById('email').value;
+                const password = document.getElementById('password').value;
+                
+                // Create form data for submission
+                const formData = new FormData();
+                formData.append('email', email);
+                formData.append('password', password);
+                
+                // Submit login request
+                fetch('/api/recruiter/login', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showAlert('Login successful! Redirecting to dashboard...', 'success');
+                        
+                        // Save user information in localStorage
+                        localStorage.setItem('recruiterId', data.recruiterId);
+                        
+                        // Redirect to admin dashboard after successful login
+                        setTimeout(function() {
+                            window.location.href = 'admin.html';
+                        }, 1000);
+                    } else {
+                        showAlert(data.message || 'Login failed. Please check your credentials.', 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showAlert('An error occurred. Please try again later.', 'error');
+                });
+            });
+            
+            function showAlert(message, type) {
+                alertBox.className = 'alert-box ' + type;
+                alertBox.textContent = message;
+                alertBox.style.display = 'block';
+                
+                // Hide alert after 5 seconds for success messages
+                if (type === 'success') {
+                    setTimeout(function() {
+                        alertBox.style.display = 'none';
+                    }, 5000);
+                }
+            }
+        });
+    </script>
+</body>
+</html>

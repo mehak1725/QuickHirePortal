@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuickHire - Resume Parser & Job Portal</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <i data-feather="briefcase"></i>
+                <h1>QuickHire</h1>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="login.html" class="btn">Candidate Login</a></li>
+                    <li><a href="register.html" class="btn">Candidate Register</a></li>
+                    <li><a href="admin-login.html" class="btn btn-secondary">Recruiter Login</a></li>
+                </ul>
+            </nav>
+        </header>
+
+        <main class="landing-page">
+            <section class="hero">
+                <div class="hero-content">
+                    <h1>Find Your Dream Job</h1>
+                    <h2>Upload your resume and let recruiters find you!</h2>
+                    <p>QuickHire uses advanced AI to parse your resume and match you with the right opportunities.</p>
+                    <div class="cta-buttons">
+                        <a href="register.html" class="btn btn-primary">Get Started</a>
+                        <a href="login.html" class="btn btn-secondary">Sign In</a>
+                    </div>
+                </div>
+                <div class="hero-image">
+                    <i data-feather="users" class="hero-icon"></i>
+                </div>
+            </section>
+
+            <section class="features">
+                <div class="feature-card">
+                    <i data-feather="upload-cloud"></i>
+                    <h3>Upload Resume</h3>
+                    <p>Upload your resume in PDF or DOCX format and let our intelligent parser extract your information.</p>
+                </div>
+                <div class="feature-card">
+                    <i data-feather="search"></i>
+                    <h3>Get Discovered</h3>
+                    <p>Recruiters can search for specific skills and find your profile if you're a match.</p>
+                </div>
+                <div class="feature-card">
+                    <i data-feather="check-circle"></i>
+                    <h3>Get Shortlisted</h3>
+                    <p>Recruiters can shortlist your profile and get in touch for interviews.</p>
+                </div>
+            </section>
+
+            <section class="how-it-works">
+                <h2>How It Works</h2>
+                <div class="steps">
+                    <div class="step">
+                        <div class="step-number">1</div>
+                        <div class="step-content">
+                            <h3>Register & Login</h3>
+                            <p>Create your account with basic information and login to access your dashboard.</p>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">2</div>
+                        <div class="step-content">
+                            <h3>Upload Resume</h3>
+                            <p>Upload your resume in PDF or DOCX format from your dashboard.</p>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">3</div>
+                        <div class="step-content">
+                            <h3>Review Parsed Data</h3>
+                            <p>Our system extracts your skills, education, and experience automatically.</p>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">4</div>
+                        <div class="step-content">
+                            <h3>Get Discovered</h3>
+                            <p>Recruiters search for candidates with matching skills and contact you.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <div class="footer-content">
+                <div class="logo footer-logo">
+                    <i data-feather="briefcase"></i>
+                    <h2>QuickHire</h2>
+                </div>
+                <div class="footer-links">
+                    <h3>Quick Links</h3>
+                    <ul>
+                        <li><a href="login.html">Candidate Login</a></li>
+                        <li><a href="register.html">Candidate Register</a></li>
+                        <li><a href="admin-login.html">Recruiter Login</a></li>
+                    </ul>
+                </div>
+                <div class="footer-contact">
+                    <h3>Contact Us</h3>
+                    <p><i data-feather="mail"></i> support@quickhire.com</p>
+                    <p><i data-feather="phone"></i> +1 (555) 123-4567</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2023 QuickHire. All rights reserved.</p>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            feather.replace();
+            
+            // Check if user is already logged in
+            checkLoggedInStatus();
+        });
+
+        function checkLoggedInStatus() {
+            // Check for candidate session
+            fetch('/api/resume/view')
+                .then(response => {
+                    if (response.ok) {
+                        // User is logged in as candidate, redirect to dashboard
+                        window.location.href = 'dashboard.html';
+                    }
+                })
+                .catch(error => {
+                    // Not logged in or error occurred, do nothing
+                });
+        }
+    </script>
+</body>
+</html>
