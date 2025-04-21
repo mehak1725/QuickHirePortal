@@ -2,7 +2,7 @@ modules = ["java", "java-19"]
 
 [nix]
 channel = "stable-24_05"
-packages = ["maven", "sqlite"]
+packages = ["maven", "sqlite", "jq"]
 
 [workflows]
 runButton = "Project"

@@ -92,17 +92,26 @@
                 event.preventDefault();
                 
                 // Get form values
-                const email = document.getElementById('email').value;
-                const password = document.getElementById('password').value;
+                const email = document.getElementById('email').value.trim();
+                const password = document.getElementById('password').value.trim();
                 
-                // Create form data for submission
-                const formData = new FormData();
+                // Client-side validation
+                if (!email || !password) {
+                    showAlert('Please fill in all required fields', 'error');
+                    return;
+                }
+                
+                // Create URL-encoded form data
+                const formData = new URLSearchParams();
                 formData.append('email', email);
                 formData.append('password', password);
                 
                 // Submit login request
                 fetch('/api/candidate/login', {
                     method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
                     body: formData
                 })
                 .then(response => response.json())
