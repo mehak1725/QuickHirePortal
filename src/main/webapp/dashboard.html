@@ -263,13 +263,27 @@
                     console.log('Adding authentication headers for upload - candidateId:', candidateId);
                 }
                 
+                // Don't add content-type header for multipart form data
+                // The browser will set it automatically with the boundary parameter
+                console.log('Uploading resume file:', file.name);
+                
                 fetch('/api/resume/upload', {
                     method: 'POST',
                     body: formData,
                     credentials: 'same-origin', // Include session cookies
-                    headers: headers // Add custom authentication headers
+                    // Headers - but DO NOT set Content-Type here (browser will set it with boundary)
+                    headers: {
+                        'X-Candidate-ID': candidateId,
+                        'X-User-Type': 'candidate'
+                    }
                 })
-                .then(response => response.json())
+                .then(response => {
+                    console.log('Upload response status:', response.status);
+                    if (!response.ok) {
+                        throw new Error('Server responded with status ' + response.status);
+                    }
+                    return response.json();
+                })
                 .then(data => {
                     // Hide progress
                     uploadProgress.style.display = 'none';

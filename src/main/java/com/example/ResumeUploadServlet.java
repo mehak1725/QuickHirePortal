@@ -80,8 +80,21 @@ public class ResumeUploadServlet extends HttpServlet {
         }
         
         // Get the uploaded file from the request
-        Part filePart = request.getPart("resume");
+        Part filePart = null;
+        try {
+            System.out.println("Attempting to get file part 'resume' from request...");
+            filePart = request.getPart("resume");
+            System.out.println("Successfully retrieved file part: " + (filePart != null));
+        } catch (Exception e) {
+            System.err.println("Error getting file part: " + e.getMessage());
+            e.printStackTrace();
+            sendError(response, "Error processing uploaded file: " + e.getMessage(), 
+                    HttpServletResponse.SC_BAD_REQUEST);
+            return;
+        }
+        
         if (filePart == null) {
+            System.err.println("File part is null, no file was uploaded");
             sendError(response, "No file uploaded", HttpServletResponse.SC_BAD_REQUEST);
             return;
         }

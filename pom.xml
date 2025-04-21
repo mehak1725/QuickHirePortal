@@ -84,10 +84,6 @@
                         <host>0.0.0.0</host>
                         <port>5000</port>
                     </httpConnector>
-                    <!-- Allow remote access to the server for easier testing -->
-                    <jettyXml>
-                        ${project.basedir}/src/main/jetty.xml
-                    </jettyXml>
                 </configuration>
             </plugin>
             <plugin>

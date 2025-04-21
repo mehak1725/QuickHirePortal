@@ -28,7 +28,7 @@ task = "packager.installForAll"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "mvn clean jetty:run -Djetty.http.port=5000 -Djetty.host=0.0.0.0"
+args = "bash run.sh"
 waitForPort = 5000
 
 [deployment]

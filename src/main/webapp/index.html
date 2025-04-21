@@ -127,17 +127,33 @@
         });
 
         function checkLoggedInStatus() {
-            // Check for candidate session
-            fetch('/api/resume/view')
+            // Check if we have authentication data in localStorage
+            const candidateId = localStorage.getItem('candidateId');
+            if (candidateId && candidateId !== 'undefined' && candidateId !== 'null') {
+                // User appears to be logged in, try to confirm by sending a request with credentials
+                fetch('/api/resume/view', {
+                    credentials: 'same-origin',
+                    headers: {
+                        'X-Candidate-ID': candidateId,
+                        'X-User-Type': 'candidate'
+                    }
+                })
                 .then(response => {
                     if (response.ok) {
                         // User is logged in as candidate, redirect to dashboard
                         window.location.href = 'dashboard.html';
+                    } else {
+                        // Invalid session, clear stored data
+                        localStorage.removeItem('candidateId');
+                        localStorage.removeItem('candidateName');
+                        localStorage.removeItem('hasResume');
                     }
                 })
                 .catch(error => {
-                    // Not logged in or error occurred, do nothing
+                    // Connection error occurred, do nothing
+                    console.error('Error checking login status:', error);
                 });
+            }
         }
     </script>
 </body>
