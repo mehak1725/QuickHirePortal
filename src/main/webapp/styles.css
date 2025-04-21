@@ -267,6 +267,28 @@ nav ul {
     align-items: center;
 }
 
+/* Navigation buttons */
+nav .btn {
+    padding: 0.5rem 1rem;
+    text-decoration: none;
+    border-radius: 4px;
+    display: inline-flex;
+    align-items: center;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+nav .btn:not(.btn-secondary) {
+    background-color: var(--grey-100);
+    color: var(--grey-800);
+    border: 1px solid var(--grey-200);
+}
+
+nav .btn:not(.btn-secondary):hover {
+    background-color: var(--grey-200);
+    color: var(--grey-900);
+}
+
 /* -------------- Footer -------------- */
 footer {
     background-color: #fff;

@@ -112,6 +112,7 @@
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded'
                     },
+                    credentials: 'same-origin', // Include cookies for session authentication
                     body: formData
                 })
                 .then(response => {
@@ -124,15 +125,32 @@
                     if (data.success) {
                         showAlert('Login successful! Redirecting to dashboard...', 'success');
                         
-                        // Save user information in localStorage
-                        localStorage.setItem('candidateName', data.name);
-                        localStorage.setItem('candidateId', data.candidateId);
-                        localStorage.setItem('hasResume', data.hasResume);
+                        // Clear existing data first to avoid any conflicts
+                        localStorage.removeItem('candidateName');
+                        localStorage.removeItem('candidateId');
+                        localStorage.removeItem('hasResume');
+                        
+                        // Make sure we have valid data before storing
+                        const candidateName = data.name || '';
+                        const candidateId = data.candidateId || '';
+                        const hasResume = data.hasResume || false;
+                        
+                        // Store validated user info in localStorage
+                        localStorage.setItem('candidateName', candidateName);
+                        localStorage.setItem('candidateId', candidateId);
+                        localStorage.setItem('hasResume', hasResume);
                         
                         console.log('Stored in localStorage:', {
-                            candidateName: data.name,
-                            candidateId: data.candidateId,
-                            hasResume: data.hasResume
+                            candidateName: candidateName,
+                            candidateId: candidateId,
+                            hasResume: hasResume
+                        });
+                        
+                        // Verify data was properly stored
+                        console.log('Verifying localStorage data:', {
+                            storedName: localStorage.getItem('candidateName'),
+                            storedId: localStorage.getItem('candidateId'),
+                            storedResume: localStorage.getItem('hasResume')
                         });
                         
                         // Force redirect to dashboard with full URL to ensure it works
@@ -149,7 +167,7 @@
                                 // Fallback to relative path if full URL fails
                                 window.location.href = 'dashboard.html';
                             }
-                        }, 100);
+                        }, 300);
                     } else {
                         showAlert(data.message || 'Login failed. Please check your credentials.', 'error');
                     }

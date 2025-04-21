@@ -34,14 +34,50 @@ public class ResumeUploadServlet extends HttpServlet {
         // Set response type
         response.setContentType("application/json");
         
-        // Check if user is logged in
+        // Check if user is logged in (either via session or header)
+        String candidateId = null;
+        
+        // First try to get candidateId from session
         HttpSession session = request.getSession(false);
-        if (session == null || session.getAttribute("candidateId") == null) {
+        if (session != null && session.getAttribute("candidateId") != null) {
+            candidateId = (String) session.getAttribute("candidateId");
+            System.out.println("Found candidateId in session: " + candidateId);
+        }
+        
+        // If not found in session, try to get from Authorization header
+        if (candidateId == null) {
+            String authHeader = request.getHeader("X-Candidate-ID");
+            if (authHeader != null && !authHeader.trim().isEmpty()) {
+                candidateId = authHeader.trim();
+                System.out.println("Found candidateId in header: " + candidateId);
+                
+                // Create a new session and store the ID (making it a valid session for next requests)
+                HttpSession newSession = request.getSession(true);
+                newSession.setAttribute("candidateId", candidateId);
+                newSession.setAttribute("userType", "candidate");
+            }
+        }
+        
+        // If still not found, check if it was passed as a parameter
+        if (candidateId == null) {
+            String paramId = request.getParameter("candidateId");
+            if (paramId != null && !paramId.trim().isEmpty()) {
+                candidateId = paramId.trim();
+                System.out.println("Found candidateId in parameter: " + candidateId);
+                
+                // Create a new session and store the ID
+                HttpSession newSession = request.getSession(true);
+                newSession.setAttribute("candidateId", candidateId);
+                newSession.setAttribute("userType", "candidate");
+            }
+        }
+        
+        // If no authentication found, return error
+        if (candidateId == null) {
+            System.out.println("No authentication credentials found in request");
             sendError(response, "Not authenticated", HttpServletResponse.SC_UNAUTHORIZED);
             return;
         }
-        
-        String candidateId = (String) session.getAttribute("candidateId");
         
         // Get the uploaded file from the request
         Part filePart = request.getPart("resume");

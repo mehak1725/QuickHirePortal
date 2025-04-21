@@ -25,24 +25,58 @@ public class ViewResumeServlet extends HttpServlet {
         // Set response type
         response.setContentType("application/json");
         
-        // Get session
+        // Get authentication from session or alternative methods
         HttpSession session = request.getSession(false);
-        if (session == null) {
+        String userType = null;
+        String candidateId = null;
+        
+        // First try to get from session
+        if (session != null) {
+            userType = (String) session.getAttribute("userType");
+            candidateId = (String) session.getAttribute("candidateId");
+            System.out.println("Found session auth: userType=" + userType + ", candidateId=" + candidateId);
+        }
+        
+        // Try alternative auth methods if session auth is incomplete
+        if (userType == null || candidateId == null) {
+            // Try header-based auth
+            String headerUserType = request.getHeader("X-User-Type");
+            String headerCandidateId = request.getHeader("X-Candidate-ID");
+            
+            if (headerUserType != null && headerCandidateId != null) {
+                userType = headerUserType;
+                candidateId = headerCandidateId;
+                System.out.println("Found header auth: userType=" + userType + ", candidateId=" + candidateId);
+                
+                // Create a session with these values for future requests
+                HttpSession newSession = request.getSession(true);
+                newSession.setAttribute("userType", userType);
+                newSession.setAttribute("candidateId", candidateId);
+            }
+            // Try parameter-based auth
+            else if (request.getParameter("userType") != null && request.getParameter("candidateId") != null) {
+                userType = request.getParameter("userType");
+                candidateId = request.getParameter("candidateId");
+                System.out.println("Found parameter auth: userType=" + userType + ", candidateId=" + candidateId);
+                
+                // Create a session with these values for future requests
+                HttpSession newSession = request.getSession(true);
+                newSession.setAttribute("userType", userType);
+                newSession.setAttribute("candidateId", candidateId);
+            }
+        }
+        
+        // If still not authenticated, return error
+        if (userType == null || (userType.equals("candidate") && candidateId == null)) {
+            System.out.println("No authentication found in request");
             sendError(response, "Not authenticated", HttpServletResponse.SC_UNAUTHORIZED);
             return;
         }
         
-        String userType = (String) session.getAttribute("userType");
         ParsedResume resume = null;
         
         if ("candidate".equals(userType)) {
             // Candidate viewing their own resume
-            String candidateId = (String) session.getAttribute("candidateId");
-            if (candidateId == null) {
-                sendError(response, "Not authenticated", HttpServletResponse.SC_UNAUTHORIZED);
-                return;
-            }
-            
             resume = DatabaseUtil.getResumeForCandidate(candidateId);
             if (resume == null) {
                 sendError(response, "No resume found", HttpServletResponse.SC_NOT_FOUND);

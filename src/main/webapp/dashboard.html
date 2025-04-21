@@ -17,6 +17,7 @@
             <nav>
                 <ul>
                     <li><span id="welcomeMessage">Welcome!</span></li>
+                    <li><a href="index.html" class="btn">Back to Home</a></li>
                     <li><a href="#" id="logoutBtn" class="btn btn-secondary">Logout</a></li>
                 </ul>
             </nav>
@@ -251,10 +252,22 @@
                 uploadProgress.style.display = 'block';
                 uploadResult.style.display = 'none';
                 
-                // Upload file
+                // Upload file with both session cookies and headers for authentication
+                const candidateId = localStorage.getItem('candidateId');
+                const headers = new Headers();
+                
+                // Add the candidateId as a header if available
+                if (candidateId) {
+                    headers.append('X-Candidate-ID', candidateId);
+                    headers.append('X-User-Type', 'candidate');
+                    console.log('Adding authentication headers for upload - candidateId:', candidateId);
+                }
+                
                 fetch('/api/resume/upload', {
                     method: 'POST',
-                    body: formData
+                    body: formData,
+                    credentials: 'same-origin', // Include session cookies
+                    headers: headers // Add custom authentication headers
                 })
                 .then(response => response.json())
                 .then(data => {
@@ -289,21 +302,20 @@
                 event.preventDefault();
                 
                 fetch('/api/candidate/logout', {
-                    method: 'POST'
+                    method: 'POST',
+                    credentials: 'same-origin' // Include session cookies
                 })
                 .then(() => {
-                    // Clear localStorage and redirect to home
-                    localStorage.removeItem('candidateName');
-                    localStorage.removeItem('candidateId');
-                    localStorage.removeItem('hasResume');
+                    // Clear authentication data and redirect to home
+                    console.log('Logout successful, clearing auth data');
+                    clearAuthData();
                     window.location.href = 'index.html';
                 })
                 .catch(error => {
-                    console.error('Error:', error);
-                    // Still redirect even if logout fails
-                    localStorage.removeItem('candidateName');
-                    localStorage.removeItem('candidateId');
-                    localStorage.removeItem('hasResume');
+                    console.error('Error during logout:', error);
+                    // Still redirect even if logout API fails
+                    console.log('Logout API failed, still clearing auth data');
+                    clearAuthData();
                     window.location.href = 'index.html';
                 });
             });
@@ -324,24 +336,47 @@
                     hasResume: hasResume
                 });
                 
-                if (!candidateId) {
-                    console.log('No candidate ID found in localStorage, redirecting to login');
+                // Check if the candidateId is valid (not undefined, null, or empty string)
+                if (!candidateId || candidateId === 'undefined' || candidateId === 'null' || candidateId === '') {
+                    console.log('Invalid or missing candidate ID in localStorage, redirecting to login');
+                    clearAuthData();
                     // Add short delay before redirect to ensure console logs are visible
                     setTimeout(function() {
                         window.location.href = 'login.html';
                     }, 100);
-                    return;
+                    return false;
                 }
                 
-                // If we have a candidateId, initialize the UI
+                // Also verify that we have a name (double-check proper authentication)
+                if (!candidateName || candidateName === 'undefined' || candidateName === 'null' || candidateName === '') {
+                    console.log('Invalid or missing candidate name in localStorage, redirecting to login');
+                    clearAuthData();
+                    setTimeout(function() {
+                        window.location.href = 'login.html';
+                    }, 100);
+                    return false;
+                }
+                
+                // If we have a valid candidateId and name, initialize the UI
                 console.log('User authenticated, initializing dashboard UI');
                 initializeUI();
+                return true;
             } catch (error) {
                 console.error('Error in checkAuthentication:', error);
                 // Handle any errors by redirecting to login
+                clearAuthData();
                 alert('Authentication error. Please login again.');
                 window.location.href = 'login.html';
+                return false;
             }
+        }
+        
+        // Helper function to clear authentication data
+        function clearAuthData() {
+            console.log('Clearing authentication data from localStorage');
+            localStorage.removeItem('candidateId');
+            localStorage.removeItem('candidateName');
+            localStorage.removeItem('hasResume');
         }
         
         function initializeUI() {
@@ -384,7 +419,21 @@
             resumeData.style.display = 'none';
             resumeNotFound.style.display = 'none';
             
-            fetch('/api/resume/view')
+            // Create headers with authentication information
+            const candidateId = localStorage.getItem('candidateId');
+            const headers = new Headers();
+            
+            // Add the candidateId as a header if available
+            if (candidateId) {
+                headers.append('X-Candidate-ID', candidateId);
+                headers.append('X-User-Type', 'candidate');
+                console.log('Adding authentication headers for view - candidateId:', candidateId);
+            }
+            
+            fetch('/api/resume/view', {
+                credentials: 'same-origin', // Include session cookies
+                headers: headers // Add custom authentication headers
+            })
                 .then(response => {
                     if (!response.ok) {
                         throw new Error('Failed to fetch resume data');
