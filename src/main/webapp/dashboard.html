@@ -308,22 +308,40 @@
                 });
             });
             
-            // Initialize UI based on localStorage
-            initializeUI();
+            // UI will be initialized after authentication check
         });
         
         function checkAuthentication() {
-            fetch('/api/resume/view')
-                .then(response => {
-                    if (!response.ok) {
-                        // Not authenticated, redirect to login
-                        window.location.href = 'login.html';
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    window.location.href = 'login.html';
+            // Check if user is logged in by looking for candidateId in localStorage
+            try {
+                const candidateId = localStorage.getItem('candidateId');
+                const candidateName = localStorage.getItem('candidateName');
+                const hasResume = localStorage.getItem('hasResume');
+                
+                console.log('Dashboard authentication check - Data:', {
+                    candidateId: candidateId,
+                    candidateName: candidateName,
+                    hasResume: hasResume
                 });
+                
+                if (!candidateId) {
+                    console.log('No candidate ID found in localStorage, redirecting to login');
+                    // Add short delay before redirect to ensure console logs are visible
+                    setTimeout(function() {
+                        window.location.href = 'login.html';
+                    }, 100);
+                    return;
+                }
+                
+                // If we have a candidateId, initialize the UI
+                console.log('User authenticated, initializing dashboard UI');
+                initializeUI();
+            } catch (error) {
+                console.error('Error in checkAuthentication:', error);
+                // Handle any errors by redirecting to login
+                alert('Authentication error. Please login again.');
+                window.location.href = 'login.html';
+            }
         }
         
         function initializeUI() {

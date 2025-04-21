@@ -114,8 +114,13 @@
                     },
                     body: formData
                 })
-                .then(response => response.json())
+                .then(response => {
+                    console.log('Login response status:', response.status);
+                    return response.json();
+                })
                 .then(data => {
+                    console.log('Login response data:', data);
+                    
                     if (data.success) {
                         showAlert('Login successful! Redirecting to dashboard...', 'success');
                         
@@ -124,16 +129,33 @@
                         localStorage.setItem('candidateId', data.candidateId);
                         localStorage.setItem('hasResume', data.hasResume);
                         
-                        // Redirect to dashboard after successful login
+                        console.log('Stored in localStorage:', {
+                            candidateName: data.name,
+                            candidateId: data.candidateId,
+                            hasResume: data.hasResume
+                        });
+                        
+                        // Force redirect to dashboard with full URL to ensure it works
+                        // Try with a full URL first
+                        const dashboardUrl = window.location.protocol + '//' + window.location.host + '/dashboard.html';
+                        console.log('Redirecting to dashboard:', dashboardUrl);
+                        
+                        // Use setTimeout to ensure localStorage is saved before redirect
                         setTimeout(function() {
-                            window.location.href = 'dashboard.html';
-                        }, 1000);
+                            try {
+                                window.location.href = dashboardUrl;
+                            } catch (e) {
+                                console.error('Error with full URL redirect:', e);
+                                // Fallback to relative path if full URL fails
+                                window.location.href = 'dashboard.html';
+                            }
+                        }, 100);
                     } else {
                         showAlert(data.message || 'Login failed. Please check your credentials.', 'error');
                     }
                 })
                 .catch(error => {
-                    console.error('Error:', error);
+                    console.error('Error during login:', error);
                     showAlert('An error occurred. Please try again later.', 'error');
                 });
             });
