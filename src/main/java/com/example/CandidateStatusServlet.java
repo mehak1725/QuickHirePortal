@@ -24,9 +24,27 @@ public class CandidateStatusServlet extends HttpServlet {
         // Set response type
         response.setContentType("application/json");
         
-        // Check if user is a recruiter
+        // Log request information for debugging
+        System.out.println("CandidateStatusServlet: Received status update request");
+        System.out.println("Content-Type: " + request.getContentType());
+        
+        // Alternative authentication methods for recruiters
+        boolean isAuthenticated = false;
+        
+        // Method 1: Check session authentication
         HttpSession session = request.getSession(false);
-        if (session == null || !"recruiter".equals(session.getAttribute("userType"))) {
+        if (session != null && "recruiter".equals(session.getAttribute("userType"))) {
+            System.out.println("Authenticated via session as recruiter");
+            isAuthenticated = true;
+        }
+        
+        // Method 2: Check header authentication
+        if (!isAuthenticated && "recruiter".equals(request.getHeader("X-User-Type"))) {
+            System.out.println("Authenticated via header as recruiter");
+            isAuthenticated = true;
+        }
+        
+        if (!isAuthenticated) {
             sendError(response, "Unauthorized", HttpServletResponse.SC_UNAUTHORIZED);
             return;
         }
@@ -34,6 +52,8 @@ public class CandidateStatusServlet extends HttpServlet {
         // Get resume ID and new status
         String resumeIdStr = request.getParameter("resumeId");
         String status = request.getParameter("status");
+        
+        System.out.println("Received parameters - resumeId: " + resumeIdStr + ", status: " + status);
         
         // Validate input
         if (resumeIdStr == null || resumeIdStr.trim().isEmpty()) {
@@ -49,6 +69,7 @@ public class CandidateStatusServlet extends HttpServlet {
         
         try {
             int resumeId = Integer.parseInt(resumeIdStr);
+            System.out.println("Updating resume " + resumeId + " status to " + status);
             
             // Update resume status
             boolean updated = DatabaseUtil.updateResumeStatus(resumeId, status);
@@ -61,12 +82,20 @@ public class CandidateStatusServlet extends HttpServlet {
                 jsonResponse.put("resumeId", resumeId);
                 jsonResponse.put("status", status);
                 
+                response.setStatus(HttpServletResponse.SC_OK);
                 response.getWriter().write(jsonResponse.toString());
+                System.out.println("Status updated successfully");
             } else {
+                System.out.println("Database update failed for resume " + resumeId);
                 sendError(response, "Failed to update resume status", HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             }
         } catch (NumberFormatException e) {
+            System.out.println("Invalid resume ID format: " + resumeIdStr);
             sendError(response, "Invalid resume ID", HttpServletResponse.SC_BAD_REQUEST);
+        } catch (Exception e) {
+            System.out.println("Unexpected error: " + e.getMessage());
+            e.printStackTrace();
+            sendError(response, "Server error: " + e.getMessage(), HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
     }
     

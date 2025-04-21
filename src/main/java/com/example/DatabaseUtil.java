@@ -512,6 +512,7 @@ public class DatabaseUtil {
     }
 
     public static boolean updateResumeStatus(int resumeId, String status) {
+        System.out.println("DatabaseUtil: Updating resume status - ID: " + resumeId + ", Status: " + status);
         try (Connection conn = getConnection();
              PreparedStatement pstmt = conn.prepareStatement(
                      "UPDATE resumes SET status = ? WHERE id = ?")) {
@@ -519,9 +520,34 @@ public class DatabaseUtil {
             pstmt.setString(1, status);
             pstmt.setInt(2, resumeId);
             
+            System.out.println("Executing SQL update: UPDATE resumes SET status = '" + status + "' WHERE id = " + resumeId);
             int rowsAffected = pstmt.executeUpdate();
+            System.out.println("Rows affected by update: " + rowsAffected);
+            
+            // Check if the resume exists but wasn't updated (status already set)
+            if (rowsAffected == 0) {
+                try (PreparedStatement checkStmt = conn.prepareStatement(
+                        "SELECT COUNT(*) FROM resumes WHERE id = ?")) {
+                    checkStmt.setInt(1, resumeId);
+                    try (ResultSet rs = checkStmt.executeQuery()) {
+                        if (rs.next() && rs.getInt(1) > 0) {
+                            // Resume exists but wasn't updated (maybe status already set)
+                            System.out.println("Resume exists but status wasn't changed (may already be '" + status + "')");
+                            return true;
+                        } else {
+                            System.out.println("Resume with ID " + resumeId + " not found");
+                        }
+                    }
+                }
+            }
+            
             return rowsAffected > 0;
         } catch (SQLException e) {
+            System.out.println("SQL Error updating resume status: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        } catch (Exception e) {
+            System.out.println("Unexpected error in updateResumeStatus: " + e.getMessage());
             e.printStackTrace();
             return false;
         }

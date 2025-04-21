@@ -203,8 +203,11 @@
             // Filter buttons
             const filterButtons = document.querySelectorAll('.filter-btn');
             
+            // Important - this variable holds the current resume ID for status updates
             let currentResumeId = null;
             let allResumes = [];
+            
+            console.log("Admin panel initialized - tracking system ready");
             
             // Load all resumes on page load
             loadAllResumes();
@@ -253,25 +256,63 @@
             // Close detail panel
             closeDetailBtn.addEventListener('click', function() {
                 resumeDetailPanel.classList.remove('active');
+                // Reset currentResumeId when closing detail panel
+                currentResumeId = null;
             });
             
-            // Action buttons
+            // Action buttons with improved resumeId handling
             shortlistBtn.addEventListener('click', function() {
-                if (currentResumeId) {
-                    updateResumeStatus(currentResumeId, 'shortlisted');
+                // First try to get the ID from the current variable
+                let resumeIdToUse = currentResumeId;
+                
+                // If that's not available, try to get it from the data attribute on the panel
+                if (!resumeIdToUse) {
+                    resumeIdToUse = resumeDetailPanel.getAttribute('data-resume-id');
                 }
+                
+                if (!resumeIdToUse) {
+                    alert('Please select a resume first');
+                    return;
+                }
+                
+                console.log(`Shortlist button clicked for resume ID: ${resumeIdToUse}`);
+                updateResumeStatus(resumeIdToUse, 'shortlisted');
             });
             
             rejectBtn.addEventListener('click', function() {
-                if (currentResumeId) {
-                    updateResumeStatus(currentResumeId, 'rejected');
+                // First try to get the ID from the current variable
+                let resumeIdToUse = currentResumeId;
+                
+                // If that's not available, try to get it from the data attribute on the panel
+                if (!resumeIdToUse) {
+                    resumeIdToUse = resumeDetailPanel.getAttribute('data-resume-id');
                 }
+                
+                if (!resumeIdToUse) {
+                    alert('Please select a resume first');
+                    return;
+                }
+                
+                console.log(`Reject button clicked for resume ID: ${resumeIdToUse}`);
+                updateResumeStatus(resumeIdToUse, 'rejected');
             });
             
             resetStatusBtn.addEventListener('click', function() {
-                if (currentResumeId) {
-                    updateResumeStatus(currentResumeId, 'pending');
+                // First try to get the ID from the current variable
+                let resumeIdToUse = currentResumeId;
+                
+                // If that's not available, try to get it from the data attribute on the panel
+                if (!resumeIdToUse) {
+                    resumeIdToUse = resumeDetailPanel.getAttribute('data-resume-id');
                 }
+                
+                if (!resumeIdToUse) {
+                    alert('Please select a resume first');
+                    return;
+                }
+                
+                console.log(`Reset status button clicked for resume ID: ${resumeIdToUse}`);
+                updateResumeStatus(resumeIdToUse, 'pending');
             });
             
             // Logout button
@@ -458,10 +499,16 @@
             }
             
             function viewResumeDetails(resumeId) {
+                // Store the resume ID for status update operations
                 currentResumeId = resumeId;
+                console.log(`View details for resume ID: ${resumeId} - stored in currentResumeId`);
+                
                 resumeDetailPanel.classList.add('active');
                 detailLoading.style.display = 'flex';
                 resumeDetail.style.display = 'none';
+                
+                // Store resumeId in a data attribute for reference
+                resumeDetailPanel.setAttribute('data-resume-id', resumeId);
                 
                 fetch(`/api/resume/view?id=${resumeId}`)
                     .then(response => {
@@ -571,18 +618,65 @@
             }
             
             function updateResumeStatus(resumeId, status) {
-                // Create form data for submission
-                const formData = new FormData();
-                formData.append('resumeId', resumeId);
-                formData.append('status', status);
+                // Enhanced input validation
+                if (!resumeId) {
+                    console.error('Missing resumeId when trying to update status');
+                    alert('Failed to update status: Resume ID is required when shortlisting or rejecting');
+                    return;
+                }
                 
+                if (!status || !['shortlisted', 'rejected', 'pending'].includes(status)) {
+                    console.error('Invalid status value:', status);
+                    alert('Failed to update status: Status must be shortlisted, rejected, or pending');
+                    return;
+                }
+                
+                console.log(`Updating resume ${resumeId} status to ${status}`);
+                
+                // Show loading indicator or disable buttons during update
+                const actionButtons = [
+                    document.getElementById('shortlistBtn'),
+                    document.getElementById('rejectBtn'),
+                    document.getElementById('resetStatusBtn')
+                ];
+                actionButtons.forEach(btn => {
+                    if (btn) btn.disabled = true;
+                });
+                
+                // Get the recruiter ID from localStorage if available
+                const recruiterId = localStorage.getItem('recruiterId') || '';
+                
+                // Convert resumeId to string if it's a number
+                const resumeIdStr = String(resumeId);
+                
+                // Debug the request before sending
+                console.log(`Sending status update request for resumeId=${resumeIdStr}, status=${status}`);
+                
+                // Create the request data with proper URL encoding
+                const requestData = `resumeId=${encodeURIComponent(resumeIdStr)}&status=${encodeURIComponent(status)}`;
+                console.log(`Request body: ${requestData}`);
+                
+                // Make the API request with improved error handling
                 fetch('/api/resume/status', {
                     method: 'POST',
-                    body: formData
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'X-User-Type': 'recruiter',
+                        'X-Recruiter-ID': recruiterId
+                    },
+                    body: requestData,
+                    credentials: 'same-origin'
                 })
-                .then(response => response.json())
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`Server returned ${response.status}: ${response.statusText}`);
+                    }
+                    return response.json();
+                })
                 .then(data => {
                     if (data.success) {
+                        console.log(`Successfully updated status for resume ${resumeId} to ${status}`);
+                        
                         // Update local state
                         updateResumeStatusInList(resumeId, status);
                         
@@ -591,15 +685,24 @@
                         
                         // Update status badge in detail view
                         const statusBadge = document.getElementById('detailStatus');
-                        statusBadge.textContent = capitalizeFirstLetter(status);
-                        statusBadge.className = 'value status-badge ' + status;
+                        if (statusBadge) {
+                            statusBadge.textContent = capitalizeFirstLetter(status);
+                            statusBadge.className = 'value status-badge ' + status;
+                        }
                     } else {
+                        console.error('Status update failed:', data.message);
                         alert('Failed to update status: ' + (data.message || 'Unknown error'));
                     }
                 })
                 .catch(error => {
-                    console.error('Error:', error);
-                    alert('An error occurred while updating the status');
+                    console.error('Error updating status:', error);
+                    alert('An error occurred while updating the status: ' + error.message);
+                })
+                .finally(() => {
+                    // Re-enable buttons
+                    actionButtons.forEach(btn => {
+                        if (btn) btn.disabled = false;
+                    });
                 });
             }
             
