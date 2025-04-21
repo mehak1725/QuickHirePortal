@@ -1,0 +1,143 @@
+PROJECT TITLE:
+QuickHire – Java Full Stack Resume Parser & Job Portal
+
+OBJECTIVE:
+QuickHire is a professional, full-featured Resume Parser and Job Recruitment Web Application built using Java (Servlets with Maven) on the backend and HTML, CSS, and JavaScript on the frontend. The application simulates a real-world job portal with two separate user roles: Candidate and Recruiter (Admin).
+
+Candidates can register and log in to their accounts. Once logged in, they can upload their resumes in either .pdf or .docx format. The uploaded resumes are parsed in detail using Apache POI (for DOCX) and Apache PDFBox (for PDF), and processed by the backend parser logic which uses regex and keyword scanning to extract structured data including: Full Name, Email, Phone Number, Education, Work Experience, and Skills. This extracted information is displayed clearly on the frontend for the candidate to review, with an option to “Check My Resume” and re-view parsed content.
+
+Recruiters (Admins) can log in using a separate login portal and access a complete dashboard listing all uploaded resumes. They have access to a smart search bar, where they can search for any keyword — whether it's a programming language, soft skill, or work experience. The system then scans through all parsed resumes and returns relevant candidates. Each result includes the candidate's name, skillset, and highlighted matching keywords. Recruiters can expand to view full parsed resume details and take action with buttons like “Shortlist” or “Reject”.
+
+TECH STACK TO BE USED:
+
+Java 21 (Servlets)
+
+Maven (for build and dependency management)
+
+Apache POI (for parsing .docx resumes)
+
+Apache PDFBox (for parsing .pdf resumes)
+
+Jetty Maven Plugin (to run the app locally)
+
+HTML + CSS + JavaScript (for the frontend UI)
+
+PROJECT STRUCTURE:
+
+pgsql
+Copy
+Edit
+quickhire/
+├── pom.xml
+└── src/
+    └── main/
+        ├── java/
+        │   └── com.example/
+        │       ├── ResumeUploadServlet.java
+        │       ├── ResumeSearchServlet.java
+        │       ├── ResumeParserUtil.java
+        │       ├── CandidateLoginServlet.java
+        │       ├── CandidateRegisterServlet.java
+        │       └── RecruiterLoginServlet.java
+        └── webapp/
+            ├── index.html         (Landing page)
+            ├── register.html      (Candidate registration)
+            ├── login.html         (Candidate login)
+            ├── dashboard.html     (Candidate dashboard)
+            ├── admin-login.html   (Recruiter login)
+            ├── admin.html         (Recruiter dashboard)
+            ├── styles.css
+            └── script.js
+FEATURES TO IMPLEMENT:
+
+Candidate Features:
+
+User registration and login for candidates.
+
+Upload resume via dashboard (PDF or DOCX).
+
+Resume is parsed using Apache POI or PDFBox.
+
+Extracts: Full Name, Email, Phone, Education, Work Experience, Skills.
+
+Displays parsed resume data on screen.
+
+Button: “Check My Resume” to view parsed results again.
+
+Recruiter (Admin) Features:
+
+Admin login (separate portal).
+
+Dashboard displaying all parsed resumes.
+
+Search bar to enter any keyword (e.g., Java, SQL, 3 years experience).
+
+Search results display matched resumes.
+
+Highlight matched keywords in results.
+
+Buttons: “View Full Resume”, “Shortlist”, “Reject”.
+
+Fully responsive and clean dashboard UI.
+
+Resume Parsing Logic (ResumeParserUtil.java):
+
+Detect file type: PDF or DOCX.
+
+Extract text using Apache POI (DOCX) or PDFBox (PDF).
+
+Use regex to extract:
+
+Email addresses
+
+Phone numbers
+
+Education and Experience sections
+
+List of technical skills (Java, Python, React, etc.)
+
+Return a structured ParsedResume Java object.
+
+Frontend UI:
+
+Clean and responsive layout using HTML/CSS.
+
+index.html: Welcome page with login/register links.
+
+login.html and register.html: Candidate login/registration.
+
+dashboard.html: Candidate view for uploading and checking resumes.
+
+admin.html: Recruiter dashboard with search, view, shortlist, reject features.
+
+styles.css: Use modern fonts, soft shadows, green/blue color theme, and responsive design.
+
+FUNCTIONAL FLOW:
+
+Candidate registers and logs in.
+
+Candidate uploads resume → parsed by servlet → data displayed on dashboard.
+
+Recruiter logs in from admin portal.
+
+Recruiter enters keyword in search bar → servlet filters resumes → results shown.
+
+Recruiter views, shortlists, or rejects candidates.
+
+DEPENDENCIES TO ADD IN pom.xml:
+
+Apache POI
+
+Apache PDFBox
+
+Servlet API
+
+Jetty Maven Plugin
+
+BONUS FUNCTIONALITY (OPTIONAL):
+
+Admin login with hardcoded credentials.
+
+Candidate option to update uploaded resume.
+
+Option to download parsed resume summary as .txt or .pdf.
