@@ -371,8 +371,8 @@
                     return false;
                 }
                 
-                // Verify with a server-side check too
-                fetch('/api/resume/view', {
+                // Use a simpler authentication check that works even if the user doesn't have a resume yet
+                fetch('/api/candidate/verify', {
                     credentials: 'same-origin',
                     headers: {
                         'X-Candidate-ID': candidateId,
@@ -385,11 +385,16 @@
                         clearAuthData();
                         window.location.href = 'login.html';
                         return false;
+                    } else {
+                        // If we get here, the authentication was successful
+                        console.log('Server authentication check successful');
+                        return true;
                     }
                 })
                 .catch(error => {
                     console.error('Error during server authentication check:', error);
-                    // Continue anyway as we already have local auth data
+                    // Instead of failing silently, we'll continue with local auth
+                    console.log('Authentication check had an error, but continuing with local auth data');
                 });
                 
                 // If we have a valid candidateId and name, initialize the UI

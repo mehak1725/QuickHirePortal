@@ -8,6 +8,7 @@ com/example/HealthCheckServlet.class
 com/example/RecruiterLogoutServlet.class
 com/example/RecruiterLoginServlet.class
 com/example/CandidateLoginServlet.class
+com/example/CandidateVerifyServlet.class
 com/example/CandidateLogoutServlet.class
 com/example/DatabaseUtil.class
 com/example/CandidateStatusServlet.class

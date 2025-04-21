@@ -5,6 +5,7 @@
 /home/runner/workspace/src/main/java/com/example/ResumeSearchServlet.java
 /home/runner/workspace/src/main/java/com/example/ResumeParserUtil.java
 /home/runner/workspace/src/main/java/com/example/CandidateStatusServlet.java
+/home/runner/workspace/src/main/java/com/example/CandidateVerifyServlet.java
 /home/runner/workspace/src/main/java/com/example/CandidateRegisterServlet.java
 /home/runner/workspace/src/main/java/com/example/ParsedResume.java
 /home/runner/workspace/src/main/java/com/example/ViewResumeServlet.java

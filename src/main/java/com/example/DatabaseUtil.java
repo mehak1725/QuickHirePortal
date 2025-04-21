@@ -570,6 +570,34 @@ public class DatabaseUtil {
         }
         return false;
     }
+    
+    /**
+     * Check if a candidate exists in the database by ID
+     * @param candidateId The candidate ID to check
+     * @return true if the candidate exists, false otherwise
+     */
+    public static boolean candidateExistsById(String candidateId) {
+        if (candidateId == null || candidateId.trim().isEmpty()) {
+            return false;
+        }
+        
+        try (Connection conn = getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(
+                     "SELECT COUNT(*) FROM candidates WHERE id = ?")) {
+            
+            pstmt.setString(1, candidateId);
+            
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1) > 0;
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error checking if candidate exists by ID: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return false;
+    }
 
     public static boolean updateResume(ParsedResume resume) {
         Connection conn = null;
