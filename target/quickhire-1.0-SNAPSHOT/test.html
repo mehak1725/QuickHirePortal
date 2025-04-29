@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>QuickHire Test Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            line-height: 1.6;
+        }
+        .success {
+            color: green;
+            font-weight: bold;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        .test-section {
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+        }
+        button {
+            padding: 8px 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        pre {
+            background-color: #f1f1f1;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>QuickHire System Test</h1>
+        <p>This page tests if the QuickHire server is functioning correctly.</p>
+        
+        <div class="test-section">
+            <h2>1. Server Connection Test</h2>
+            <p>Testing if the server is responding...</p>
+            <p id="server-status">⏳ Running test...</p>
+            <pre id="server-response"></pre>
+        </div>
+        
+        <div class="test-section">
+            <h2>2. Database Test</h2>
+            <p>Testing if the database is accessible...</p>
+            <p id="db-status">⏳ Running test...</p>
+            <pre id="db-response"></pre>
+        </div>
+        
+        <div class="test-section">
+            <h2>3. API Access Test</h2>
+            <p>Testing if the APIs are accessible...</p>
+            <p id="api-status">⏳ Running test...</p>
+            <pre id="api-response"></pre>
+        </div>
+        
+        <div class="test-section">
+            <h2>Result Summary</h2>
+            <p id="summary">Tests in progress...</p>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Run all tests when page loads
+            runServerTest()
+                .then(() => runDbTest())
+                .then(() => runApiTest())
+                .then(() => updateSummary());
+        });
+        
+        async function runServerTest() {
+            try {
+                const response = await fetch('/');
+                const serverStatusElement = document.getElementById('server-status');
+                const serverResponseElement = document.getElementById('server-response');
+                
+                if (response.ok) {
+                    serverStatusElement.textContent = '✅ Server is responding correctly!';
+                    serverStatusElement.className = 'success';
+                    serverResponseElement.textContent = `Status: ${response.status} ${response.statusText}`;
+                } else {
+                    serverStatusElement.textContent = '❌ Server returned an error response.';
+                    serverResponseElement.textContent = `Status: ${response.status} ${response.statusText}`;
+                }
+            } catch (error) {
+                const serverStatusElement = document.getElementById('server-status');
+                const serverResponseElement = document.getElementById('server-response');
+                serverStatusElement.textContent = '❌ Failed to connect to server.';
+                serverResponseElement.textContent = error.toString();
+            }
+        }
+        
+        async function runDbTest() {
+            try {
+                // This is a simple API call that requires database access
+                const response = await fetch('/api/candidate/check', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: 'email=test@example.com'
+                });
+                
+                const dbStatusElement = document.getElementById('db-status');
+                const dbResponseElement = document.getElementById('db-response');
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    dbStatusElement.textContent = '✅ Database connection successful!';
+                    dbStatusElement.className = 'success';
+                    dbResponseElement.textContent = JSON.stringify(data, null, 2);
+                } else {
+                    dbStatusElement.textContent = '❌ Database test failed.';
+                    dbResponseElement.textContent = `Status: ${response.status} ${response.statusText}`;
+                }
+            } catch (error) {
+                const dbStatusElement = document.getElementById('db-status');
+                const dbResponseElement = document.getElementById('db-response');
+                dbStatusElement.textContent = '❌ Failed to test database connection.';
+                dbResponseElement.textContent = error.toString();
+            }
+        }
+        
+        async function runApiTest() {
+            try {
+                // Test an API endpoint that doesn't require authentication
+                const response = await fetch('/api/candidate/check', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: 'email=nonexistent@example.com'
+                });
+                
+                const apiStatusElement = document.getElementById('api-status');
+                const apiResponseElement = document.getElementById('api-response');
+                
+                if (response.ok || response.status === 400) {
+                    const data = await response.json();
+                    apiStatusElement.textContent = '✅ API endpoints are accessible!';
+                    apiStatusElement.className = 'success';
+                    apiResponseElement.textContent = JSON.stringify(data, null, 2);
+                } else {
+                    apiStatusElement.textContent = '❌ API test failed.';
+                    apiResponseElement.textContent = `Status: ${response.status} ${response.statusText}`;
+                }
+            } catch (error) {
+                const apiStatusElement = document.getElementById('api-status');
+                const apiResponseElement = document.getElementById('api-response');
+                apiStatusElement.textContent = '❌ Failed to access API endpoints.';
+                apiResponseElement.textContent = error.toString();
+            }
+        }
+        
+        function updateSummary() {
+            const serverStatus = document.getElementById('server-status').textContent.startsWith('✅');
+            const dbStatus = document.getElementById('db-status').textContent.startsWith('✅');
+            const apiStatus = document.getElementById('api-status').textContent.startsWith('✅');
+            
+            const summaryElement = document.getElementById('summary');
+            
+            if (serverStatus && dbStatus && apiStatus) {
+                summaryElement.textContent = '✅ All tests passed! The QuickHire system is working properly.';
+                summaryElement.className = 'success';
+            } else if (serverStatus) {
+                summaryElement.textContent = '⚠️ Server is responding, but there are issues with other components.';
+            } else {
+                summaryElement.textContent = '❌ Critical issues detected. The server is not responding properly.';
+            }
+        }
+    </script>
+</body>
+</html>

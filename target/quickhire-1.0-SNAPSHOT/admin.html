@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recruiter Dashboard - QuickHire</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <i data-feather="briefcase"></i>
+                <h1>QuickHire</h1>
+            </div>
+            <nav>
+                <ul>
+                    <li><span id="welcomeMessage">Welcome, Recruiter!</span></li>
+                    <li><a href="/" class="btn">Back to Home</a></li>
+                    <li><a href="#" id="logoutBtn" class="btn btn-secondary">Logout</a></li>
+                </ul>
+            </nav>
+        </header>
+
+        <main class="admin-page">
+            <div class="admin-sidebar">
+                <div class="sidebar-user">
+                    <div class="user-avatar admin">
+                        <i data-feather="users"></i>
+                    </div>
+                    <h3>Admin</h3>
+                    <p>Recruiter Dashboard</p>
+                </div>
+                <div class="sidebar-menu">
+                    <ul>
+                        <li class="active">
+                            <a href="#" id="allResumesTab">
+                                <i data-feather="list"></i>
+                                <span>All Resumes</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" id="shortlistedTab">
+                                <i data-feather="check-circle"></i>
+                                <span>Shortlisted</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" id="rejectedTab">
+                                <i data-feather="x-circle"></i>
+                                <span>Rejected</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="admin-content">
+                <div class="content-header">
+                    <h2><i data-feather="search"></i> Resume Search</h2>
+                    <div class="search-bar">
+                        <input type="text" id="searchKeyword" placeholder="Search by skills, experience, education...">
+                        <button id="searchBtn" class="btn btn-primary">
+                            <i data-feather="search"></i> Search
+                        </button>
+                    </div>
+                </div>
+
+                <div class="resume-filters">
+                    <div class="filter-item">
+                        <span class="filter-label">Filter by:</span>
+                        <div class="filter-options">
+                            <button class="filter-btn active" data-filter="all">All</button>
+                            <button class="filter-btn" data-filter="shortlisted">Shortlisted</button>
+                            <button class="filter-btn" data-filter="rejected">Rejected</button>
+                            <button class="filter-btn" data-filter="pending">Pending</button>
+                        </div>
+                    </div>
+                    <div class="filter-stats">
+                        <span id="resultCount">0</span> results found
+                    </div>
+                </div>
+
+                <div class="resumes-container">
+                    <div class="resumes-loading" id="resumesLoading">
+                        <i data-feather="loader"></i>
+                        <p>Loading resumes...</p>
+                    </div>
+                    
+                    <div id="resumesList" class="resumes-list"></div>
+                    
+                    <div class="resumes-empty" id="resumesEmpty" style="display: none;">
+                        <i data-feather="file-text"></i>
+                        <h3>No Resumes Found</h3>
+                        <p>No candidates have uploaded resumes yet or no matches for your search criteria.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="resume-detail-panel" id="resumeDetailPanel">
+                <div class="panel-header">
+                    <h3>Resume Details</h3>
+                    <button class="close-btn" id="closeDetailBtn">
+                        <i data-feather="x"></i>
+                    </button>
+                </div>
+                <div class="panel-body">
+                    <div class="resume-loading" id="detailLoading">
+                        <i data-feather="loader"></i>
+                        <p>Loading resume details...</p>
+                    </div>
+                    
+                    <div class="resume-data" id="resumeDetail" style="display: none;">
+                        <div class="resume-section personal-info">
+                            <h3>Personal Information</h3>
+                            <div class="info-item">
+                                <span class="label">Name:</span>
+                                <span class="value" id="detailName">-</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="label">Email:</span>
+                                <span class="value" id="detailEmail">-</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="label">Phone:</span>
+                                <span class="value" id="detailPhone">-</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="label">Status:</span>
+                                <span class="value status-badge" id="detailStatus">-</span>
+                            </div>
+                        </div>
+                        
+                        <div class="resume-section education">
+                            <h3>Education</h3>
+                            <ul id="detailEducation" class="list-items"></ul>
+                        </div>
+                        
+                        <div class="resume-section experience">
+                            <h3>Work Experience</h3>
+                            <ul id="detailExperience" class="list-items"></ul>
+                        </div>
+                        
+                        <div class="resume-section skills">
+                            <h3>Skills</h3>
+                            <div id="detailSkills" class="skills-list"></div>
+                        </div>
+                        
+                        <div class="resume-actions">
+                            <button class="btn btn-success" id="shortlistBtn">
+                                <i data-feather="check-circle"></i> Shortlist
+                            </button>
+                            <button class="btn btn-danger" id="rejectBtn">
+                                <i data-feather="x-circle"></i> Reject
+                            </button>
+                            <button class="btn btn-secondary" id="resetStatusBtn">
+                                <i data-feather="refresh-cw"></i> Reset Status
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer>
+            <div class="footer-bottom">
+                <p>&copy; 2023 QuickHire. All rights reserved.</p>
+            </div>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            feather.replace();
+            
+            // Check authentication
+            checkRecruiterAuthentication();
+            
+            // Initialize UI elements
+            const searchKeyword = document.getElementById('searchKeyword');
+            const searchBtn = document.getElementById('searchBtn');
+            const resumesList = document.getElementById('resumesList');
+            const resumesLoading = document.getElementById('resumesLoading');
+            const resumesEmpty = document.getElementById('resumesEmpty');
+            const resultCount = document.getElementById('resultCount');
+            const resumeDetailPanel = document.getElementById('resumeDetailPanel');
+            const closeDetailBtn = document.getElementById('closeDetailBtn');
+            const detailLoading = document.getElementById('detailLoading');
+            const resumeDetail = document.getElementById('resumeDetail');
+            
+            // Action buttons
+            const shortlistBtn = document.getElementById('shortlistBtn');
+            const rejectBtn = document.getElementById('rejectBtn');
+            const resetStatusBtn = document.getElementById('resetStatusBtn');
+            
+            // Sidebar tabs
+            const allResumesTab = document.getElementById('allResumesTab');
+            const shortlistedTab = document.getElementById('shortlistedTab');
+            const rejectedTab = document.getElementById('rejectedTab');
+            
+            // Filter buttons
+            const filterButtons = document.querySelectorAll('.filter-btn');
+            
+            // Important - this variable holds the current resume ID for status updates
+            let currentResumeId = null;
+            let allResumes = [];
+            
+            console.log("Admin panel initialized - tracking system ready");
+            
+            // Load all resumes on page load
+            loadAllResumes();
+            
+            // Search button click
+            searchBtn.addEventListener('click', function() {
+                const keyword = searchKeyword.value.trim();
+                searchResumes(keyword);
+            });
+            
+            // Search on Enter key
+            searchKeyword.addEventListener('keyup', function(event) {
+                if (event.key === 'Enter') {
+                    searchBtn.click();
+                }
+            });
+            
+            // Tab navigation
+            allResumesTab.addEventListener('click', function() {
+                setActiveTab(allResumesTab);
+                searchResumes('');
+                setActiveFilter('all');
+            });
+            
+            shortlistedTab.addEventListener('click', function() {
+                setActiveTab(shortlistedTab);
+                filterResumes('shortlisted');
+                setActiveFilter('shortlisted');
+            });
+            
+            rejectedTab.addEventListener('click', function() {
+                setActiveTab(rejectedTab);
+                filterResumes('rejected');
+                setActiveFilter('rejected');
+            });
+            
+            // Filter buttons
+            filterButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const filter = this.getAttribute('data-filter');
+                    setActiveFilter(filter);
+                    filterResumes(filter);
+                });
+            });
+            
+            // Close detail panel
+            closeDetailBtn.addEventListener('click', function() {
+                resumeDetailPanel.classList.remove('active');
+                // Reset currentResumeId when closing detail panel
+                currentResumeId = null;
+            });
+            
+            // Action buttons with improved resumeId handling
+            shortlistBtn.addEventListener('click', function() {
+                // First try to get the ID from the current variable
+                let resumeIdToUse = currentResumeId;
+                
+                // If that's not available, try to get it from the data attribute on the panel
+                if (!resumeIdToUse) {
+                    resumeIdToUse = resumeDetailPanel.getAttribute('data-resume-id');
+                }
+                
+                if (!resumeIdToUse) {
+                    alert('Please select a resume first');
+                    return;
+                }
+                
+                console.log(`Shortlist button clicked for resume ID: ${resumeIdToUse}`);
+                updateResumeStatus(resumeIdToUse, 'shortlisted');
+            });
+            
+            rejectBtn.addEventListener('click', function() {
+                // First try to get the ID from the current variable
+                let resumeIdToUse = currentResumeId;
+                
+                // If that's not available, try to get it from the data attribute on the panel
+                if (!resumeIdToUse) {
+                    resumeIdToUse = resumeDetailPanel.getAttribute('data-resume-id');
+                }
+                
+                if (!resumeIdToUse) {
+                    alert('Please select a resume first');
+                    return;
+                }
+                
+                console.log(`Reject button clicked for resume ID: ${resumeIdToUse}`);
+                updateResumeStatus(resumeIdToUse, 'rejected');
+            });
+            
+            resetStatusBtn.addEventListener('click', function() {
+                // First try to get the ID from the current variable
+                let resumeIdToUse = currentResumeId;
+                
+                // If that's not available, try to get it from the data attribute on the panel
+                if (!resumeIdToUse) {
+                    resumeIdToUse = resumeDetailPanel.getAttribute('data-resume-id');
+                }
+                
+                if (!resumeIdToUse) {
+                    alert('Please select a resume first');
+                    return;
+                }
+                
+                console.log(`Reset status button clicked for resume ID: ${resumeIdToUse}`);
+                updateResumeStatus(resumeIdToUse, 'pending');
+            });
+            
+            // Logout button
+            const logoutBtn = document.getElementById('logoutBtn');
+            logoutBtn.addEventListener('click', function(event) {
+                event.preventDefault();
+                
+                // Get recruiterId for header auth
+                const recruiterId = localStorage.getItem('recruiterId');
+                
+                fetch('/api/recruiter/logout', {
+                    method: 'POST',
+                    credentials: 'same-origin', // Include session cookies
+                    headers: {
+                        'X-User-Type': 'recruiter',
+                        'X-Recruiter-ID': recruiterId || ''
+                    }
+                })
+                .then(response => {
+                    console.log('Logout response status:', response.status);
+                    // Clear localStorage and redirect to home
+                    localStorage.removeItem('recruiterId');
+                    window.location.href = 'index.html';
+                })
+                .catch(error => {
+                    console.error('Error during logout:', error);
+                    // Still redirect even if logout fails
+                    localStorage.removeItem('recruiterId');
+                    window.location.href = 'index.html';
+                });
+            });
+            
+            function checkRecruiterAuthentication() {
+                fetch('/api/resume/search')
+                    .then(response => {
+                        if (!response.ok) {
+                            // Not authenticated as recruiter, redirect to login
+                            window.location.href = 'admin-login.html';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        window.location.href = 'admin-login.html';
+                    });
+            }
+            
+            function loadAllResumes() {
+                resumesLoading.style.display = 'flex';
+                resumesList.innerHTML = '';
+                resumesEmpty.style.display = 'none';
+                
+                fetch('/api/resume/search')
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Failed to fetch resumes');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        resumesLoading.style.display = 'none';
+                        
+                        if (data.success && data.resumes && data.resumes.length > 0) {
+                            allResumes = data.resumes;
+                            displayResumes(data.resumes);
+                            resultCount.textContent = data.resumes.length;
+                        } else {
+                            resumesEmpty.style.display = 'flex';
+                            resultCount.textContent = '0';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        resumesLoading.style.display = 'none';
+                        resumesEmpty.style.display = 'flex';
+                        resultCount.textContent = '0';
+                    });
+            }
+            
+            function searchResumes(keyword) {
+                resumesLoading.style.display = 'flex';
+                resumesList.innerHTML = '';
+                resumesEmpty.style.display = 'none';
+                
+                fetch(`/api/resume/search?keyword=${encodeURIComponent(keyword)}`)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Failed to fetch resumes');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        resumesLoading.style.display = 'none';
+                        
+                        if (data.success && data.resumes && data.resumes.length > 0) {
+                            allResumes = data.resumes;
+                            displayResumes(data.resumes);
+                            resultCount.textContent = data.resumes.length;
+                        } else {
+                            resumesEmpty.style.display = 'flex';
+                            resultCount.textContent = '0';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        resumesLoading.style.display = 'none';
+                        resumesEmpty.style.display = 'flex';
+                        resultCount.textContent = '0';
+                    });
+            }
+            
+            function filterResumes(status) {
+                if (status === 'all') {
+                    displayResumes(allResumes);
+                    resultCount.textContent = allResumes.length;
+                    return;
+                }
+                
+                const filteredResumes = allResumes.filter(resume => resume.status === status);
+                displayResumes(filteredResumes);
+                resultCount.textContent = filteredResumes.length;
+                
+                if (filteredResumes.length === 0) {
+                    resumesEmpty.style.display = 'flex';
+                } else {
+                    resumesEmpty.style.display = 'none';
+                }
+            }
+            
+            function displayResumes(resumes) {
+                resumesList.innerHTML = '';
+                
+                resumes.forEach(resume => {
+                    const resumeCard = document.createElement('div');
+                    resumeCard.className = `resume-card ${resume.status}`;
+                    resumeCard.setAttribute('data-id', resume.id);
+                    
+                    // Check if this resume matches the search keyword
+                    const keywordMatch = resume.matchesKeyword ? `<div class="keyword-match"><i data-feather="check"></i> Matches "${resume.searchKeyword}"</div>` : '';
+                    
+                    // Create HTML for skills list
+                    const skillsHtml = resume.skills.map(skill => `<span class="skill-tag">${skill}</span>`).join('');
+                    
+                    resumeCard.innerHTML = `
+                        <div class="resume-header">
+                            <h3>${resume.fullName || 'Unknown'}</h3>
+                            <span class="status-badge ${resume.status}">${capitalizeFirstLetter(resume.status)}</span>
+                        </div>
+                        <div class="resume-info">
+                            <div class="info-row">
+                                <i data-feather="mail"></i>
+                                <span>${resume.email || 'No email'}</span>
+                            </div>
+                            <div class="info-row">
+                                <i data-feather="phone"></i>
+                                <span>${resume.phoneNumber || 'No phone'}</span>
+                            </div>
+                        </div>
+                        <div class="resume-skills">
+                            <h4>Skills</h4>
+                            <div class="skills-list">
+                                ${skillsHtml || '<span>No skills found</span>'}
+                            </div>
+                        </div>
+                        ${keywordMatch}
+                        <div class="resume-actions">
+                            <button class="btn btn-primary view-resume-btn">
+                                <i data-feather="eye"></i> View Full Resume
+                            </button>
+                        </div>
+                    `;
+                    
+                    resumesList.appendChild(resumeCard);
+                    
+                    // Replace icons in the newly created card
+                    feather.replace();
+                    
+                    // Add click event to view button
+                    const viewBtn = resumeCard.querySelector('.view-resume-btn');
+                    viewBtn.addEventListener('click', function() {
+                        const resumeId = resumeCard.getAttribute('data-id');
+                        viewResumeDetails(resumeId);
+                    });
+                });
+            }
+            
+            function viewResumeDetails(resumeId) {
+                // Store the resume ID for status update operations
+                currentResumeId = resumeId;
+                console.log(`View details for resume ID: ${resumeId} - stored in currentResumeId`);
+                
+                resumeDetailPanel.classList.add('active');
+                detailLoading.style.display = 'flex';
+                resumeDetail.style.display = 'none';
+                
+                // Store resumeId in a data attribute for reference
+                resumeDetailPanel.setAttribute('data-resume-id', resumeId);
+                
+                fetch(`/api/resume/view?id=${resumeId}`)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Failed to fetch resume details');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        detailLoading.style.display = 'none';
+                        
+                        if (data.success && data.resume) {
+                            displayResumeDetails(data.resume);
+                            resumeDetail.style.display = 'block';
+                            
+                            // Update button states based on current status
+                            updateActionButtons(data.resume.status);
+                        } else {
+                            showDetailError('Failed to load resume details');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        detailLoading.style.display = 'none';
+                        showDetailError('Error loading resume details');
+                    });
+            }
+            
+            function displayResumeDetails(resume) {
+                // Personal info
+                document.getElementById('detailName').textContent = resume.fullName || '-';
+                document.getElementById('detailEmail').textContent = resume.email || '-';
+                document.getElementById('detailPhone').textContent = resume.phoneNumber || '-';
+                
+                // Status badge
+                const statusBadge = document.getElementById('detailStatus');
+                statusBadge.textContent = capitalizeFirstLetter(resume.status || 'pending');
+                statusBadge.className = 'value status-badge ' + (resume.status || 'pending');
+                
+                // Education
+                const educationList = document.getElementById('detailEducation');
+                educationList.innerHTML = '';
+                
+                if (resume.education && resume.education.length > 0) {
+                    resume.education.forEach(edu => {
+                        const li = document.createElement('li');
+                        li.textContent = edu;
+                        educationList.appendChild(li);
+                    });
+                } else {
+                    const li = document.createElement('li');
+                    li.textContent = 'No education information found';
+                    educationList.appendChild(li);
+                }
+                
+                // Work Experience
+                const experienceList = document.getElementById('detailExperience');
+                experienceList.innerHTML = '';
+                
+                if (resume.workExperience && resume.workExperience.length > 0) {
+                    resume.workExperience.forEach(exp => {
+                        const li = document.createElement('li');
+                        li.textContent = exp;
+                        experienceList.appendChild(li);
+                    });
+                } else {
+                    const li = document.createElement('li');
+                    li.textContent = 'No work experience information found';
+                    experienceList.appendChild(li);
+                }
+                
+                // Skills
+                const skillsList = document.getElementById('detailSkills');
+                skillsList.innerHTML = '';
+                
+                if (resume.skills && resume.skills.length > 0) {
+                    resume.skills.forEach(skill => {
+                        const span = document.createElement('span');
+                        span.className = 'skill-tag';
+                        span.textContent = skill;
+                        skillsList.appendChild(span);
+                    });
+                } else {
+                    skillsList.textContent = 'No skills information found';
+                }
+            }
+            
+            function updateActionButtons(status) {
+                shortlistBtn.disabled = status === 'shortlisted';
+                rejectBtn.disabled = status === 'rejected';
+                resetStatusBtn.disabled = status === 'pending';
+                
+                // Update button styles
+                if (status === 'shortlisted') {
+                    shortlistBtn.classList.add('disabled');
+                    rejectBtn.classList.remove('disabled');
+                    resetStatusBtn.classList.remove('disabled');
+                } else if (status === 'rejected') {
+                    shortlistBtn.classList.remove('disabled');
+                    rejectBtn.classList.add('disabled');
+                    resetStatusBtn.classList.remove('disabled');
+                } else {
+                    shortlistBtn.classList.remove('disabled');
+                    rejectBtn.classList.remove('disabled');
+                    resetStatusBtn.classList.add('disabled');
+                }
+            }
+            
+            function updateResumeStatus(resumeId, status) {
+                // Enhanced input validation
+                if (!resumeId) {
+                    console.error('Missing resumeId when trying to update status');
+                    alert('Failed to update status: Resume ID is required when shortlisting or rejecting');
+                    return;
+                }
+                
+                if (!status || !['shortlisted', 'rejected', 'pending'].includes(status)) {
+                    console.error('Invalid status value:', status);
+                    alert('Failed to update status: Status must be shortlisted, rejected, or pending');
+                    return;
+                }
+                
+                console.log(`Updating resume ${resumeId} status to ${status}`);
+                
+                // Show loading indicator or disable buttons during update
+                const actionButtons = [
+                    document.getElementById('shortlistBtn'),
+                    document.getElementById('rejectBtn'),
+                    document.getElementById('resetStatusBtn')
+                ];
+                actionButtons.forEach(btn => {
+                    if (btn) btn.disabled = true;
+                });
+                
+                // Get the recruiter ID from localStorage if available
+                const recruiterId = localStorage.getItem('recruiterId') || '';
+                
+                // Convert resumeId to string if it's a number
+                const resumeIdStr = String(resumeId);
+                
+                // Debug the request before sending
+                console.log(`Sending status update request for resumeId=${resumeIdStr}, status=${status}`);
+                
+                // Create the request data with proper URL encoding
+                const requestData = `resumeId=${encodeURIComponent(resumeIdStr)}&status=${encodeURIComponent(status)}`;
+                console.log(`Request body: ${requestData}`);
+                
+                // Make the API request with improved error handling
+                fetch('/api/resume/status', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'X-User-Type': 'recruiter',
+                        'X-Recruiter-ID': recruiterId
+                    },
+                    body: requestData,
+                    credentials: 'same-origin'
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`Server returned ${response.status}: ${response.statusText}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        console.log(`Successfully updated status for resume ${resumeId} to ${status}`);
+                        
+                        // Update local state
+                        updateResumeStatusInList(resumeId, status);
+                        
+                        // Update action buttons
+                        updateActionButtons(status);
+                        
+                        // Update status badge in detail view
+                        const statusBadge = document.getElementById('detailStatus');
+                        if (statusBadge) {
+                            statusBadge.textContent = capitalizeFirstLetter(status);
+                            statusBadge.className = 'value status-badge ' + status;
+                        }
+                    } else {
+                        console.error('Status update failed:', data.message);
+                        alert('Failed to update status: ' + (data.message || 'Unknown error'));
+                    }
+                })
+                .catch(error => {
+                    console.error('Error updating status:', error);
+                    alert('An error occurred while updating the status: ' + error.message);
+                })
+                .finally(() => {
+                    // Re-enable buttons
+                    actionButtons.forEach(btn => {
+                        if (btn) btn.disabled = false;
+                    });
+                });
+            }
+            
+            function updateResumeStatusInList(resumeId, status) {
+                // Update in allResumes array
+                const resumeIndex = allResumes.findIndex(r => r.id == resumeId);
+                if (resumeIndex !== -1) {
+                    allResumes[resumeIndex].status = status;
+                }
+                
+                // Update in DOM
+                const resumeCard = document.querySelector(`.resume-card[data-id="${resumeId}"]`);
+                if (resumeCard) {
+                    // Update card class
+                    resumeCard.className = `resume-card ${status}`;
+                    
+                    // Update status badge
+                    const statusBadge = resumeCard.querySelector('.status-badge');
+                    if (statusBadge) {
+                        statusBadge.textContent = capitalizeFirstLetter(status);
+                        statusBadge.className = `status-badge ${status}`;
+                    }
+                }
+            }
+            
+            function showDetailError(message) {
+                resumeDetail.innerHTML = `
+                    <div class="error-message">
+                        <i data-feather="alert-circle"></i>
+                        <p>${message}</p>
+                    </div>
+                `;
+                resumeDetail.style.display = 'block';
+                feather.replace();
+            }
+            
+            function setActiveTab(tabElement) {
+                // Remove active class from all tabs
+                document.querySelectorAll('.sidebar-menu li').forEach(item => {
+                    item.classList.remove('active');
+                });
+                
+                // Add active class to selected tab
+                tabElement.parentElement.classList.add('active');
+            }
+            
+            function setActiveFilter(filter) {
+                // Remove active class from all filter buttons
+                filterButtons.forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                
+                // Add active class to selected filter
+                const selectedFilter = document.querySelector(`.filter-btn[data-filter="${filter}"]`);
+                if (selectedFilter) {
+                    selectedFilter.classList.add('active');
+                }
+            }
+            
+            function capitalizeFirstLetter(string) {
+                return string.charAt(0).toUpperCase() + string.slice(1);
+            }
+        });
+    </script>
+</body>
+</html>

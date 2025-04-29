@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Candidate Login - QuickHire</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <i data-feather="briefcase"></i>
+                <h1>QuickHire</h1>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="/">Home</a></li>
+                    <li><a href="register.html">Register</a></li>
+                </ul>
+            </nav>
+        </header>
+
+        <main class="auth-page">
+            <div class="auth-card">
+                <div class="auth-header">
+                    <i data-feather="user"></i>
+                    <h2>Candidate Login</h2>
+                    <p>Access your dashboard and resume</p>
+                </div>
+
+                <form id="loginForm" class="auth-form">
+                    <div class="form-group">
+                        <label for="email">Email Address</label>
+                        <div class="input-with-icon">
+                            <i data-feather="mail"></i>
+                            <input type="email" id="email" name="email" placeholder="Enter your email" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <div class="input-with-icon">
+                            <i data-feather="lock"></i>
+                            <input type="password" id="password" name="password" placeholder="Enter your password" required>
+                        </div>
+                    </div>
+
+                    <div class="alert-box" id="alertBox"></div>
+
+                    <button type="submit" class="btn btn-primary btn-block">
+                        <i data-feather="log-in"></i> Login
+                    </button>
+                </form>
+
+                <div class="auth-footer">
+                    <p>Don't have an account? <a href="register.html">Register</a></p>
+                    <p><a href="admin-login.html">Recruiter Login</a></p>
+                </div>
+            </div>
+        </main>
+
+        <footer>
+            <div class="footer-bottom">
+                <p>&copy; 2023 QuickHire. All rights reserved.</p>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            feather.replace();
+            
+            // Check if user is already logged in
+            fetch('/api/resume/view')
+                .then(response => {
+                    if (response.ok) {
+                        // User is already logged in, redirect to dashboard
+                        window.location.href = 'dashboard.html';
+                    }
+                })
+                .catch(error => {
+                    // Not logged in or error occurred, do nothing
+                });
+            
+            // Handle form submission
+            const loginForm = document.getElementById('loginForm');
+            const alertBox = document.getElementById('alertBox');
+            
+            loginForm.addEventListener('submit', function(event) {
+                event.preventDefault();
+                
+                // Get form values
+                const email = document.getElementById('email').value.trim();
+                const password = document.getElementById('password').value.trim();
+                
+                // Client-side validation
+                if (!email || !password) {
+                    showAlert('Please fill in all required fields', 'error');
+                    return;
+                }
+                
+                // Create URL-encoded form data
+                const formData = new URLSearchParams();
+                formData.append('email', email);
+                formData.append('password', password);
+                
+                // Submit login request
+                fetch('/api/candidate/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    credentials: 'same-origin', // Include cookies for session authentication
+                    body: formData
+                })
+                .then(response => {
+                    console.log('Login response status:', response.status);
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Login response data:', data);
+                    
+                    if (data.success) {
+                        showAlert('Login successful! Redirecting to dashboard...', 'success');
+                        
+                        // Clear existing data first to avoid any conflicts
+                        localStorage.removeItem('candidateName');
+                        localStorage.removeItem('candidateId');
+                        localStorage.removeItem('hasResume');
+                        
+                        // Make sure we have valid data before storing
+                        const candidateName = data.name || '';
+                        const candidateId = data.candidateId || '';
+                        const hasResume = data.hasResume || false;
+                        
+                        // Store validated user info in localStorage
+                        localStorage.setItem('candidateName', candidateName);
+                        localStorage.setItem('candidateId', candidateId);
+                        localStorage.setItem('hasResume', hasResume);
+                        
+                        console.log('Stored in localStorage:', {
+                            candidateName: candidateName,
+                            candidateId: candidateId,
+                            hasResume: hasResume
+                        });
+                        
+                        // Verify data was properly stored
+                        console.log('Verifying localStorage data:', {
+                            storedName: localStorage.getItem('candidateName'),
+                            storedId: localStorage.getItem('candidateId'),
+                            storedResume: localStorage.getItem('hasResume')
+                        });
+                        
+                        // Force redirect to dashboard with full URL to ensure it works
+                        // Try with a full URL first
+                        const dashboardUrl = window.location.protocol + '//' + window.location.host + '/dashboard.html';
+                        console.log('Redirecting to dashboard:', dashboardUrl);
+                        
+                        // Use setTimeout to ensure localStorage is saved before redirect
+                        setTimeout(function() {
+                            try {
+                                window.location.href = dashboardUrl;
+                            } catch (e) {
+                                console.error('Error with full URL redirect:', e);
+                                // Fallback to relative path if full URL fails
+                                window.location.href = 'dashboard.html';
+                            }
+                        }, 300);
+                    } else {
+                        showAlert(data.message || 'Login failed. Please check your credentials.', 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error during login:', error);
+                    showAlert('An error occurred. Please try again later.', 'error');
+                });
+            });
+            
+            function showAlert(message, type) {
+                alertBox.className = 'alert-box ' + type;
+                alertBox.textContent = message;
+                alertBox.style.display = 'block';
+                
+                // Hide alert after 5 seconds for success messages
+                if (type === 'success') {
+                    setTimeout(function() {
+                        alertBox.style.display = 'none';
+                    }, 5000);
+                }
+            }
+        });
+    </script>
+</body>
+</html>
