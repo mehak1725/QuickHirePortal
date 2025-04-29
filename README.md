@@ -44,5 +44,8 @@ This is a Java-based web application that enables recruiters to manage resumes m
 - `index.jsp`, `index.html`: Landing pages.
 - `healthcheck.html`: Checks backend service status.
 - `styles.css`, `script.js`: UI styling and behavior.
+- 
+## Demo Video
 
+Watch the video demonstration of the application here: https://drive.google.com/drive/folders/1jttgZBodo9K-XxhJ_svEdi38cwAHDCn5?usp=drive_link
 
